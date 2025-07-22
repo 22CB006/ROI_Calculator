@@ -1,3 +1,72 @@
+# Workflow ROI Calculator
+
+A Next.js application that calculates Return on Investment (ROI) for workflow automation, featuring email report delivery.
+
+## Features
+
+- 📊 Interactive ROI calculation based on workforce metrics
+- 📧 Automated email report delivery
+- 🎨 Modern, responsive design with Tailwind CSS
+- 📱 Mobile-friendly interface
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, or pnpm
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Set up email configuration (see [EMAIL_SETUP.md](./EMAIL_SETUP.md) for detailed instructions)
+
+4. Run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Email Configuration
+
+The application includes email functionality to send ROI reports. To enable this feature:
+
+1. Copy `.env.local` and configure your email credentials
+2. Follow the setup instructions in [EMAIL_SETUP.md](./EMAIL_SETUP.md)
+3. Test the functionality by filling out the calculator and providing an email address
+
+## Technology Stack
+
+- **Framework**: Next.js 15.4.1 with App Router
+- **Styling**: Tailwind CSS 4
+- **Email**: Nodemailer
+- **Language**: TypeScript
+- **Icons**: Lucide React
+
+## Usage
+
+1. Fill in the workforce metrics (employees, hours, hourly cost)
+2. Optionally add error impact data
+3. Enter your email address
+4. Click "Calculate ROI" to see results and receive an email report
+5. Use "Email me the full report" button to resend the report
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { TrendingUp, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface FormData {
   teamMembers: number;
@@ -31,16 +31,109 @@ export default function ROICalculator() {
 
   const [results, setResults] = useState<Results | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Helper function to format break-even time with approximate days
+  const formatBreakEvenTime = (months: number) => {
+    if (months < 1) {
+      const days = Math.round(months * 30); // Approximate days in a month
+      return {
+        primary: `${months.toFixed(2)} months`,
+        secondary: `(≈ ${days} days)`
+      };
+    } else if (months < 12) {
+      return {
+        primary: `${months.toFixed(1)} months`,
+        secondary: ''
+      };
+    } else {
+      const years = (months / 12).toFixed(1);
+      return {
+        primary: `${years} years`,
+        secondary: ''
+      };
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'email' ? value : Number(value)
-    }));
+    
+    if (name === 'email') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    } else {
+      // For numeric fields, ensure no negative values
+      const numericValue = Number(value);
+      if (value === '' || numericValue >= 0) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+      // If user tries to enter negative value, don't update the state
+      // The input will remain at its previous value
+    }
   };
 
-  const calculateROI = () => {
+  const calculateROI = async () => {
+    // Check for required fields
+    if (!formData.email) {
+      toast.error('Email is required');
+      return;
+    }
+    
+    if (!formData.teamMembers) {
+      toast.error('Number of employees is required');
+      return;
+    }
+    
+    if (!formData.hoursPerWeek) {
+      toast.error('Hours per employee/week is required');
+      return;
+    }
+    
+    if (!formData.hourlyRate) {
+      toast.error('Hourly cost is required');
+      return;
+    }
+
+    // Check for negative values
+    if (formData.teamMembers < 0) {
+      toast.error('Number of employees cannot be negative');
+      return;
+    }
+    
+    if (formData.hoursPerWeek < 0) {
+      toast.error('Hours per employee/week cannot be negative');
+      return;
+    }
+    
+    if (formData.hourlyRate < 0) {
+      toast.error('Hourly cost cannot be negative');
+      return;
+    }
+    
+    if (formData.monthlyErrorCost < 0) {
+      toast.error('Monthly error cost cannot be negative');
+      return;
+    }
+    
+    if (formData.costPerError < 0) {
+      toast.error('Cost per error cannot be negative');
+      return;
+    }
+
+    // Additional logical validations
+    if (formData.hoursPerWeek > 168) { // 168 hours in a week
+      toast.error('Hours per week cannot exceed 168 (total hours in a week)');
+      return;
+    }
+
+    setIsLoading(true);
+    toast.loading('Calculating & Sending Report...', { id: 'calculation' });
+
     const laborCostPerMonth = formData.teamMembers * formData.hoursPerWeek * formData.hourlyRate * 4;
     const totalMonthlyCost = laborCostPerMonth + formData.monthlyErrorCost;
     const automationCost = 18000;
@@ -49,31 +142,107 @@ export default function ROICalculator() {
 
     const calculatedResults = {
       monthlyLoss: totalMonthlyCost,
-      breakEvenMonths: Math.ceil(breakEvenMonths),
+      breakEvenMonths: breakEvenMonths, // Keep exact decimal value
       annualSavings: Math.max(0, annualSavings)
     };
 
     setResults(calculatedResults);
     setShowResults(true);
+
+    // Send email with the results
+    try {
+      // Use mock email service if configured
+      const emailEndpoint = process.env.NEXT_PUBLIC_USE_MOCK_EMAIL === 'true' ? '/api/send-email-mock' : '/api/send-email';
+      
+      const response = await fetch(emailEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          teamMembers: formData.teamMembers,
+          hoursPerWeek: formData.hoursPerWeek,
+          hourlyRate: formData.hourlyRate,
+          monthlyErrorCost: formData.monthlyErrorCost,
+          costPerError: formData.costPerError,
+          monthlyLoss: calculatedResults.monthlyLoss,
+          breakEvenMonths: calculatedResults.breakEvenMonths,
+          annualSavings: calculatedResults.annualSavings,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Report sent to your email successfully!', { id: 'calculation' });
+      } else {
+        const errorData = await response.json();
+        if (response.status === 503) {
+          toast.error('Email service not configured. Please contact support for report delivery.', { id: 'calculation' });
+        } else {
+          toast.error(`Email sending failed: ${errorData.error || 'Unknown error'}`, { id: 'calculation' });
+        }
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error('Email service temporarily unavailable. Please try again later.', { id: 'calculation' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const resetCalculator = () => {
-    setFormData({
-      teamMembers: 0,
-      hoursPerWeek: 0,
-      hourlyRate: 0,
-      monthlyErrorCost: 0,
-      costPerError: 0,
-      email: ''
-    });
-    setResults(null);
-    setShowResults(false);
+  const sendEmailReport = async () => {
+    if (!formData.email || !results) {
+      toast.error('Email or results not available');
+      return;
+    }
+
+    setIsLoading(true);
+    toast.loading('Sending report...', { id: 'email-report' });
+
+    try {
+      // Use mock email service if configured
+      const emailEndpoint = process.env.NEXT_PUBLIC_USE_MOCK_EMAIL === 'true' ? '/api/send-email-mock' : '/api/send-email';
+      
+      const response = await fetch(emailEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          teamMembers: formData.teamMembers,
+          hoursPerWeek: formData.hoursPerWeek,
+          hourlyRate: formData.hourlyRate,
+          monthlyErrorCost: formData.monthlyErrorCost,
+          costPerError: formData.costPerError,
+          monthlyLoss: results.monthlyLoss,
+          breakEvenMonths: results.breakEvenMonths,
+          annualSavings: results.annualSavings,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Full report sent to your email successfully!', { id: 'email-report' });
+      } else {
+        const errorData = await response.json();
+        if (response.status === 503) {
+          toast.error('Email service not configured. Please contact support for report delivery.', { id: 'email-report' });
+        } else {
+          toast.error(`Failed to send email: ${errorData.error || 'Unknown error'}`, { id: 'email-report' });
+        }
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error('Email service temporarily unavailable. Please try again later.', { id: 'email-report' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (showResults && results) {
     return (
-      <div className="w-full flex justify-center items-center min-h-[808px] bg-transparent">
-        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200 w-[900px] flex flex-col gap-0 md:gap-8">
+      <div className="w-full flex justify-center items-center min-h-[908px] bg-transparent">
+        <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200 w-[1440px] flex flex-col gap-0 md:gap-8">
           {/* Centered Title */}
           <div className="flex items-center justify-center mb-8 w-full">
             <Image src="/garden_growth-chart-fill-16.png" alt="Growth chart icon" width={28} height={28} className="w-7 h-7 mr-2" />
@@ -116,9 +285,12 @@ export default function ROICalculator() {
               </div>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 flex flex-col">
                 <span className="text-[16px] font-medium text-yellow-800 mb-1">Break-even in</span>
-                <div className="flex items-end gap-2">
-                  <span className="text-[40px] font-bold text-yellow-800 leading-none">{results.breakEvenMonths} months</span>
-                  <span className="text-[18px] font-medium text-yellow-800 leading-none mb-1">if automated</span>
+                <div className="flex flex-col">
+                  <span className="text-[32px] font-bold text-yellow-800 leading-none">{formatBreakEvenTime(results.breakEvenMonths).primary}</span>
+                  {formatBreakEvenTime(results.breakEvenMonths).secondary && (
+                    <span className="text-[18px] font-medium text-yellow-700 leading-none mt-1">{formatBreakEvenTime(results.breakEvenMonths).secondary}</span>
+                  )}
+                  <span className="text-[16px] font-medium text-yellow-800 leading-none mt-2">if automated</span>
                 </div>
               </div>
               <div className="bg-green-50 border border-green-200 rounded-lg p-6 flex flex-col">
@@ -127,10 +299,11 @@ export default function ROICalculator() {
               </div>
               <div className="flex gap-2 mt-2">
                 <button
-                  onClick={resetCalculator}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-[#04A15B] font-medium hover:bg-gray-50 transition-colors text-[16px] whitespace-nowrap"
+                  onClick={sendEmailReport}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-[#04A15B] font-medium hover:bg-gray-50 transition-colors text-[16px] whitespace-nowrap disabled:opacity-50"
                 >
-                  Email me the full report
+                  {isLoading ? 'Sending...' : 'Email me the full report'}
                 </button>
                 <button
                   className="flex-1 px-4 py-3 bg-[#04A15B] text-white rounded-lg hover:bg-[#038549] transition-colors text-[16px] font-medium whitespace-nowrap"
@@ -161,15 +334,9 @@ export default function ROICalculator() {
   }
 
   return (
-    <div className="w-full bg-gray-50 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100"></div>
-      <div className="absolute top-20 left-10 w-72 h-72 bg-[#04A15B] rounded-full opacity-5 blur-3xl"></div>
-      <div className="absolute top-40 right-10 w-96 h-96 bg-blue-500 rounded-full opacity-5 blur-3xl"></div>
-      <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-80 h-80 bg-purple-500 rounded-full opacity-5 blur-3xl"></div>
-      
-      <div className="relative z-10 w-[390px] lg:w-[900px] h-[917px] lg:h-[808px] mx-auto p-4 lg:p-0">
-        <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6 border border-gray-200 w-full h-full overflow-hidden">
+    <>
+      <div style={{ width: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: 0, padding: 0 }}>
+        <div className="bg-white shadow-lg border border-gray-200" style={{ width: '900px', height: '808px', paddingTop: '20px', paddingRight: '40px', paddingBottom: '40px', paddingLeft: '40px', borderRadius: '12px' }}>
           {/* Header */}
           <div className="mb-6 lg:mb-8">
             <div className="flex items-center justify-center mb-4">
@@ -205,12 +372,16 @@ export default function ROICalculator() {
               </h3>
             </div>
             
+            <div className="mb-4 text-sm text-gray-600" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Fields marked with <span className="text-red-500">*</span> are required. All values must be positive numbers.
+            </div>
+            
             <div className="space-y-4 lg:space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <div>
                   <div className="flex items-center mb-2">
                     <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                      Employees doing manual work
+                      Employees doing manual work <span className="text-red-500">*</span>
                     </label>
                     <Image 
                       src="/material-symbols_info-rounded.png" 
@@ -225,6 +396,7 @@ export default function ROICalculator() {
                     name="teamMembers"
                     value={formData.teamMembers || ''}
                     onChange={handleInputChange}
+                    min="0"
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 20"
@@ -234,7 +406,7 @@ export default function ROICalculator() {
                 <div>
                   <div className="flex items-center mb-2">
                     <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                      Hours per employee/week
+                      Hours per employee/week <span className="text-red-500">*</span>
                     </label>
                     <Image 
                       src="/material-symbols_info-rounded.png" 
@@ -249,6 +421,8 @@ export default function ROICalculator() {
                     name="hoursPerWeek"
                     value={formData.hoursPerWeek || ''}
                     onChange={handleInputChange}
+                    min="0"
+                    max="168"
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 40"
@@ -260,7 +434,7 @@ export default function ROICalculator() {
                 <div>
                   <div className="flex items-center mb-2">
                     <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                      Hourly cost (with overhead)
+                      Hourly cost (with overhead) <span className="text-red-500">*</span>
                     </label>
                     <Image 
                       src="/material-symbols_info-rounded.png" 
@@ -275,6 +449,8 @@ export default function ROICalculator() {
                     name="hourlyRate"
                     value={formData.hourlyRate || ''}
                     onChange={handleInputChange}
+                    min="0"
+                    step="0.01"
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 50"
@@ -306,7 +482,7 @@ export default function ROICalculator() {
               <div>
                 <div className="flex items-center mb-2">
                   <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                    Monthly error cost (optional)
+                    Monthly error cost <span className="text-gray-500">(optional)</span>
                   </label>
                   <Image 
                     src="/material-symbols_info-rounded.png" 
@@ -321,6 +497,8 @@ export default function ROICalculator() {
                   name="monthlyErrorCost"
                   value={formData.monthlyErrorCost || ''}
                   onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
                   className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                   style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                   placeholder="e.g., 1000"
@@ -330,7 +508,7 @@ export default function ROICalculator() {
               <div>
                 <div className="flex items-center mb-2">
                   <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                    Cost per error (optional)
+                    Cost per error <span className="text-gray-500">(optional)</span>
                   </label>
                   <Image 
                     src="/material-symbols_info-rounded.png" 
@@ -345,6 +523,8 @@ export default function ROICalculator() {
                   name="costPerError"
                   value={formData.costPerError || ''}
                   onChange={handleInputChange}
+                  min="0"
+                  step="0.01"
                   className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                   style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                   placeholder="e.g., 100"
@@ -373,7 +553,7 @@ export default function ROICalculator() {
             <div>
               <div className="mb-2">
                 <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                  Your email
+                  Your email <span className="text-red-500">*</span>
                 </label>
               </div>
               <input
@@ -381,6 +561,7 @@ export default function ROICalculator() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
+                required
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                 style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                 placeholder="Your@gmail.com"
@@ -392,14 +573,41 @@ export default function ROICalculator() {
           <div className="text-center">
             <button
               onClick={calculateROI}
-              className="w-full px-8 py-3 bg-[#04A15B] text-white rounded-lg hover:bg-[#038549] transition-colors text-[14px] font-semibold leading-[140%] tracking-[0%]"
+              disabled={isLoading}
+              className="w-full px-8 py-3 bg-[#04A15B] text-white rounded-lg hover:bg-[#038549] transition-colors text-[14px] font-semibold leading-[140%] tracking-[0%] disabled:opacity-50"
               style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
             >
-              Calculate ROI
+              {isLoading ? 'Calculating & Sending Report...' : 'Calculate ROI'}
             </button>
           </div>
         </div>
       </div>
-    </div>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#101F2F',
+            borderRadius: '8px',
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+          },
+          success: {
+            iconTheme: {
+              primary: '#04A15B',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#EF4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
+    </>
   );
 }
