@@ -10,10 +10,10 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white border-b border-gray-100 w-[1440px] h-16 lg:h-[88px] flex items-center px-4 lg:px-0 py-4 lg:py-[20px] relative mx-auto">
-      <div className="w-full flex items-center justify-between max-w-full lg:px-[20px]">
+    <header className="bg-white border-b border-gray-100 w-full max-w-[1440px] h-16 lg:h-[88px] flex items-center px-4 lg:px-[20px] py-4 lg:py-[20px] relative mx-auto">
+      <div className="w-full flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center flex-shrink-0">
           <Image
             src="/logo.png"
             alt="UnoiaTech"
@@ -24,8 +24,8 @@ export default function Header() {
         </Link>
 
         {/* Navigation - Desktop */}
-        <nav className="hidden lg:flex items-center gap-[50px]">
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+        <nav className="hidden lg:flex items-center gap-[20px] xl:gap-[32px] flex-shrink">
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Portfolio
           </Link>
           
@@ -33,7 +33,7 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => setIsServicesOpen(!isServicesOpen)}
-              className="flex items-center text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]"
+              className="flex items-center text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap"
               style={{ fontFamily: 'PP Mori, sans-serif' }}
             >
               Services
@@ -66,32 +66,32 @@ export default function Header() {
             )}
           </div>
 
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Why Choose Us
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             ROI Calculator
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             About Us
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Our Process
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Blog
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%]" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Contact Us
           </Link>
         </nav>
 
         {/* Let's Talk Button - Desktop */}
-        <div className="hidden lg:flex items-center">
+        <div className="hidden lg:flex items-center flex-shrink-0">
           <Link
             href="#"
-            className="bg-[#04A15B] text-white px-6 py-3 rounded-[8px] text-sm font-medium hover:bg-[#038549] transition-colors h-[48px] flex items-center justify-center"
-            style={{ minWidth: '108px' }}
+            className="bg-[#04A15B] text-white px-4 xl:px-6 py-3 rounded-[8px] text-sm font-medium hover:bg-[#038549] transition-colors h-[48px] flex items-center justify-center whitespace-nowrap"
+            style={{ minWidth: '100px' }}
           >
             Let&apos;s Talk
           </Link>

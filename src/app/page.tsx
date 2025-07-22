@@ -8,7 +8,7 @@ import CTA from '@/components/CTA';
 export default function Home() {
   return (
     <div className="w-full bg-gray-50 min-h-screen">
-      <div className="w-full max-w-[1440px] mx-auto">
+      <div className="w-full max-w-[1440px] mx-auto px-0 overflow-hidden">
         <Header />
         
         <main className="w-full">

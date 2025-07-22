@@ -35,3 +35,38 @@ html {
   width: 100%;
   overflow-x: hidden;
 }
+
+/* Responsive adjustments for 1366px and smaller screens */
+@media (max-width: 1440px) {
+  .max-w-\[1440px\] {
+    max-width: 100% !important;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (max-width: 1366px) {
+  /* Header adjustments */
+  header {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  
+  /* ROI Calculator adjustments */
+  .roi-calculator-container {
+    max-width: calc(100vw - 40px) !important;
+    padding: 0 20px !important;
+  }
+  
+  /* Footer adjustments */
+  footer {
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+  
+  /* CTA adjustments */
+  .cta-container {
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+  }
+}

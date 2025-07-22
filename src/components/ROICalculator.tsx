@@ -335,8 +335,8 @@ export default function ROICalculator() {
 
   return (
     <>
-      <div style={{ width: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: 0, padding: 0 }}>
-        <div className="bg-white shadow-lg border border-gray-200" style={{ width: '900px', height: '808px', paddingTop: '20px', paddingRight: '40px', paddingBottom: '40px', paddingLeft: '40px', borderRadius: '12px' }}>
+      <div style={{ width: '100%', maxWidth: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
+        <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', height: '808px', paddingTop: '20px', paddingRight: '40px', paddingBottom: '40px', paddingLeft: '40px', borderRadius: '12px' }}>
           {/* Header */}
           <div className="mb-6 lg:mb-8">
             <div className="flex items-center justify-center mb-4">

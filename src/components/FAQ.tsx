@@ -26,7 +26,7 @@ export default function FAQ() {
   };
 
   return (
-    <div className="mx-auto" style={{ width: '1440px', height: '557px', margin: '0 auto', paddingTop: 0 }}>
+    <div className="mx-auto px-4" style={{ width: '100%', maxWidth: '1440px', height: '557px', margin: '0 auto', paddingTop: 0 }}>
       <div className="bg-white rounded-lg p-4 lg:p-8 h-full w-full" style={{ height: '557px' }}>
         <h2 className="text-[48px] font-plus-jakarta-sans leading-[140%] tracking-[-0.05em] text-[#131514] text-center mb-6 lg:mb-8" style={{ fontWeight: '600' }}>
           Frequently Asked Questions
