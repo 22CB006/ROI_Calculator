@@ -13,7 +13,7 @@ export default function Home() {
         
         <main className="w-full">
           {/* ROI Calculator Section */}
-          <section id="calculator" className="py-8 md:py-16">
+          <section id="calculator" style={{ marginTop: '-25px' }}>
             <ROICalculator />
           </section>
 
