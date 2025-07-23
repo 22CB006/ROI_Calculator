@@ -10,16 +10,16 @@ export default function AboutUs() {
           <p className="text-center text-[24px] text-gray-700 mb-6" style={{fontFamily:'Plus Jakarta Sans, sans-serif', lineHeight:'140%'}}>
             We specialize in custom software development, automation, and AI-driven solutions that help businesses eliminate inefficiencies, scale their operations, and unlock new growth opportunities.
           </p>
-          <p className="text-center text-[20px] text-gray-700 mb-12" style={{fontFamily:'Plus Jakarta Sans, sans-serif', lineHeight:'140%'}}>
+          <p className="text-center text-[24px] text-gray-700 mb-12" style={{fontFamily:'Plus Jakarta Sans, sans-serif', lineHeight:'140%'}}>
             Our clients are mid-sized to large businesses looking to modernize their systems, integrate automation, or build entirely new software solutions to stay ahead of their competition.
           </p>
           <h3 className="text-center text-[20px] font-bold text-gray-900 mb-8" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>Industries We Serve</h3>
           <div className="w-full mx-auto flex flex-row flex-nowrap justify-center items-center gap-3" style={{marginBottom:'32px'}}>
-            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-normal shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif'}}>Healthcare and Dental Practices</span>
-            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-normal shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif'}}>Real Estate and Property Management</span>
-            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-normal shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif'}}>SaaS and Tech Startups</span>
-            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-normal shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif'}}>Finance and Accounting Firms</span>
-            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-normal shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif'}}>eCommerce and Retail</span>
+            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-semibold shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif', fontWeight:600}}>Healthcare and Dental Practices</span>
+            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-semibold shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif', fontWeight:600}}>Real Estate and Property Management</span>
+            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-semibold shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif', fontWeight:600}}>SaaS and Tech Startups</span>
+            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-semibold shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif', fontWeight:600}}>Finance and Accounting Firms</span>
+            <span className="inline-flex items-center justify-center bg-white rounded-lg border border-gray-200 text-[#131514] text-[14px] font-semibold shadow-sm whitespace-nowrap text-center px-3 py-3" style={{height:'48px', fontFamily:'Plus Jakarta Sans, sans-serif', fontWeight:600}}>eCommerce and Retail</span>
           </div>
         </div>
       </div>
