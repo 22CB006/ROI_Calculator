@@ -35,10 +35,21 @@ export default function ROICalculator() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'number' ? Number(value) : value
-    }));
+    // Only allow positive decimal numbers, block negatives, specials, and alpha
+    if (type === 'number') {
+      // Accept decimals, block negatives, specials, alpha
+      if (/^(\d*\.?\d*)$/.test(value) || value === '') {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value === '' ? 0 : Number(value)
+        }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const calculateROI = async () => {
@@ -71,8 +82,8 @@ export default function ROICalculator() {
     const laborCostPerMonth = formData.teamMembers * formData.hoursPerWeek * formData.hourlyRate * 4;
     const totalMonthlyCost = laborCostPerMonth + formData.monthlyErrorCost;
     const automationCost = 18000;
-    const breakEvenMonths = automationCost / totalMonthlyCost;
-    const annualSavings = totalMonthlyCost * 12;
+    const breakEvenMonths = totalMonthlyCost > 0 ? automationCost / totalMonthlyCost : 0;
+    const annualSavings = (totalMonthlyCost * 12) - automationCost;
 
     const calculatedResults = {
       monthlyLoss: totalMonthlyCost,
@@ -168,26 +179,27 @@ export default function ROICalculator() {
                     </span>
                   </div>
                   <input
-                    type="number"
+                    type="text"
                     name="teamMembers"
                     value={formData.teamMembers === 0 ? '' : formData.teamMembers}
                     onChange={e => {
                       const val = e.target.value;
-                      // Only allow positive whole numbers (no negatives, no decimals, no non-numeric)
-                      if (/^\d+$/.test(val) || val === '') {
-                        handleInputChange(e);
+                      // Allow positive decimals, block negatives, specials, alpha
+                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
+                        handleInputChange({
+                          ...e,
+                          target: {
+                            ...e.target,
+                            value: val,
+                            type: 'number',
+                          }
+                        });
                       }
                     }}
                     min="0"
-                    step="1"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                     placeholder="e.g., 20"
-                    onKeyDown={e => {
-                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
                 </div>
                 {/* Hours per employee/week */}
@@ -204,26 +216,27 @@ export default function ROICalculator() {
                     </span>
                   </div>
                   <input
-                    type="number"
+                    type="text"
                     name="hoursPerWeek"
                     value={formData.hoursPerWeek === 0 ? '' : formData.hoursPerWeek}
                     onChange={e => {
                       const val = e.target.value;
-                      if (/^\d+$/.test(val) || val === '') {
-                        handleInputChange(e);
+                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
+                        handleInputChange({
+                          ...e,
+                          target: {
+                            ...e.target,
+                            value: val,
+                            type: 'number',
+                          }
+                        });
                       }
                     }}
                     min="0"
                     max="168"
-                    step="1"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                     placeholder="e.g., 40"
-                    onKeyDown={e => {
-                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
                 </div>
                 {/* Hourly cost (with overhead) */}
@@ -240,25 +253,26 @@ export default function ROICalculator() {
                     </span>
                   </div>
                   <input
-                    type="number"
+                    type="text"
                     name="hourlyRate"
                     value={formData.hourlyRate === 0 ? '' : formData.hourlyRate}
                     onChange={e => {
                       const val = e.target.value;
-                      if (/^\d+$/.test(val) || val === '') {
-                        handleInputChange(e);
+                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
+                        handleInputChange({
+                          ...e,
+                          target: {
+                            ...e.target,
+                            value: val,
+                            type: 'number',
+                          }
+                        });
                       }
                     }}
                     min="0"
-                    step="1"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                     placeholder="e.g., 50"
-                    onKeyDown={e => {
-                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
                   />
                 </div>
                 {/* Monthly error cost (optional) */}
@@ -473,25 +487,15 @@ export default function ROICalculator() {
                       </span>
                     </div>
                     <input
-                      type="number"
-                      name="teamMembers"
-                      value={formData.teamMembers === 0 ? '' : formData.teamMembers}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (/^\d+$/.test(val) || val === '') {
-                          handleInputChange(e);
-                        }
-                      }}
-                      min="0"
-                      step="1"
-                      className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                      style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
-                      placeholder="e.g., 20"
-                      onKeyDown={e => {
-                        if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
+                    type="number"
+                    step="any"
+                    name="teamMembers"
+                    value={formData.teamMembers === 0 ? '' : formData.teamMembers}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                    placeholder="e.g., 20"
                     />
                   </div>
 
@@ -514,26 +518,16 @@ export default function ROICalculator() {
                       </span>
                     </div>
                     <input
-                      type="number"
-                      name="hoursPerWeek"
-                      value={formData.hoursPerWeek === 0 ? '' : formData.hoursPerWeek}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (/^\d+$/.test(val) || val === '') {
-                          handleInputChange(e);
-                        }
-                      }}
-                      min="0"
-                      max="168"
-                      step="1"
-                      className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                      style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
-                      placeholder="e.g., 40"
-                      onKeyDown={e => {
-                        if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
+                    type="number"
+                    step="any"
+                    name="hoursPerWeek"
+                    value={formData.hoursPerWeek === 0 ? '' : formData.hoursPerWeek}
+                    onChange={handleInputChange}
+                    min="0"
+                    max="168"
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                    placeholder="e.g., 40"
                     />
                   </div>
                 </div>
@@ -558,25 +552,15 @@ export default function ROICalculator() {
                       </span>
                     </div>
                     <input
-                      type="number"
-                      name="hourlyRate"
-                      value={formData.hourlyRate === 0 ? '' : formData.hourlyRate}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (/^\d+$/.test(val) || val === '') {
-                          handleInputChange(e);
-                        }
-                      }}
-                      min="0"
-                      step="1"
-                      className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                      style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
-                      placeholder="e.g., 50"
-                      onKeyDown={e => {
-                        if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
+                    type="number"
+                    step="any"
+                    name="hourlyRate"
+                    value={formData.hourlyRate === 0 ? '' : formData.hourlyRate}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
+                    placeholder="e.g., 50"
                     />
                   </div>
                   <div></div>
@@ -622,24 +606,13 @@ export default function ROICalculator() {
                   </div>
                   <input
                       type="number"
+                      step="any"
                       name="monthlyErrorCost"
                       value={formData.monthlyErrorCost === 0 ? '' : formData.monthlyErrorCost}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (/^\d+$/.test(val) || val === '') {
-                          handleInputChange(e);
-                        }
-                      }}
-                      min="0"
-                      step="1"
+                      onChange={handleInputChange}
                       className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                       style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                       placeholder="e.g., 1000"
-                      onKeyDown={e => {
-                        if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
                   />
                 </div>
 
@@ -663,24 +636,13 @@ export default function ROICalculator() {
                   </div>
                   <input
                       type="number"
+                      step="any"
                       name="costPerError"
                       value={formData.costPerError === 0 ? '' : formData.costPerError}
-                      onChange={e => {
-                        const val = e.target.value;
-                        if (/^\d+$/.test(val) || val === '') {
-                          handleInputChange(e);
-                        }
-                      }}
-                      min="0"
-                      step="1"
+                      onChange={handleInputChange}
                       className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                       style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                       placeholder="e.g., 100"
-                      onKeyDown={e => {
-                        if (["e", "E", ".", "-", "+"].includes(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
                   />
                 </div>
               </div>
