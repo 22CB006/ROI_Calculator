@@ -41,8 +41,8 @@ export default function Footer() {
                 <Image src="/call-calling.png" alt="Phone" width={24} height={24} />
               </div>
               <div>
-                <div className="text-[14px] text-gray-700 font-normal">Have a question?</div>
-                <div className="text-[18px] text-[#04A15B] font-normal">+01-123-4567</div>
+                <div className="text-[14px] text-[#6F7E8A] font-normal">Have a question?</div>
+                <div className="text-[16px] text-[#131514] font-normal">+01-123-4567</div>
               </div>
             </div>
             <div className="flex flex-row items-center gap-4">
@@ -50,8 +50,8 @@ export default function Footer() {
                 <Image src="/mail.png" alt="Email" width={24} height={24} />
               </div>
               <div>
-                <div className="text-[14px] text-gray-700 font-normal">Contact us at</div>
-                <div className="text-[18px] text-[#04A15B] font-normal">welcome@unoiatech.com</div>
+                <div className="text-[14px] text-[#6F7E8A] font-normal">Contact us at</div>
+                <div className="text-[16px] text-[#131514] font-normal">welcome@unoiatech.com</div>
               </div>
             </div>
           </div>
