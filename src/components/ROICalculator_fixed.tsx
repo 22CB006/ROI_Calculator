@@ -69,7 +69,7 @@ export default function ROICalculator() {
     const totalMonthlyCost = laborCostPerMonth + formData.monthlyErrorCost;
     const automationCost = 18000;
     const breakEvenMonths = automationCost / totalMonthlyCost;
-    const annualSavings = totalMonthlyCost * 12;
+    const annualSavings = (totalMonthlyCost * 12) - automationCost;
 
     const calculatedResults = {
       monthlyLoss: totalMonthlyCost,
@@ -214,11 +214,18 @@ export default function ROICalculator() {
                 <div className="text-[#B8840B] text-[40px] font-bold leading-[1.1]">{results.breakEvenMonths} months</div>
                 <div className="text-[#B8840B] text-[16px] font-normal">if automated</div>
               </div>
-              {/* Annual savings potential */}
-              <div className="bg-[#E6F9ED] rounded-lg p-6 mb-4">
-                <div className="text-[#04A15B] text-[16px] font-normal mb-1">Annual savings potential:</div>
-                <div className="text-[#04A15B] text-[40px] font-bold leading-[1.1]">${results.annualSavings.toLocaleString()}</div>
-              </div>
+              {/* Annual savings potential (only if positive) */}
+              {results.annualSavings > 0 ? (
+                <div className="bg-[#E6F9ED] rounded-lg p-6 mb-4">
+                  <div className="text-[#04A15B] text-[16px] font-normal mb-1">Annual savings potential:</div>
+                  <div className="text-[#04A15B] text-[40px] font-bold leading-[1.1]">${Math.abs(results.annualSavings).toLocaleString()}</div>
+                </div>
+              ) : (
+                <div className="bg-[#FFF7E6] rounded-lg p-6 mb-4">
+                  <div className="text-[#B8840B] text-[16px] font-normal mb-1">No annual savings with automation for this setup.</div>
+                  <div className="text-[#B8840B] text-[16px] font-normal">Try adjusting your inputs to see potential savings.</div>
+                </div>
+              )}
               {/* Re-Calculate Button */}
               <button
                 onClick={calculateROI}

@@ -6,10 +6,23 @@ export default function Footer() {
     <footer className="flex flex-col items-center" style={{ width: '100%', maxWidth: '1440px', height: '436px', fontFamily: 'Plus Jakarta Sans, sans-serif', backgroundColor: '#04A15B0D', margin: '0 auto', paddingLeft: '64px', paddingRight: '64px' }}>
       <div className="h-full flex flex-col items-center justify-center pt-12 pb-0" style={{ width: '100%' }}>
         <Image src="/logo.png" alt="UnoiaTech" width={180} height={40} className="mb-6" />
-        <p className="text-center text-gray-700 text-[18px] mb-6 max-w-[700px] font-normal">
+        <p
+          className="text-center text-gray-700 mb-6"
+          style={{
+            fontFamily: 'Plus Jakarta Sans, sans-serif',
+            fontWeight: 500,
+            fontSize: '16px',
+            lineHeight: '150%',
+            maxWidth: '788px',
+            margin: '0 auto',
+            letterSpacing: '0',
+            textAlign: 'center',
+            wordBreak: 'break-word',
+          }}
+        >
           UnoiaTech provides expert web, SaaS, and mobile app development services for various industries, including fintech and healthcare.
         </p>
-        <div className="flex flex-row gap-8 mb-8 justify-center">
+        <div className="flex flex-row gap-8 mb-8 justify-center" style={{paddingTop: '16px'}}>
           <Link href="#" aria-label="Facebook">
             <Image src="/ant-design_facebook-filled.png" alt="Facebook" width={32} height={32} />
           </Link>
@@ -23,15 +36,15 @@ export default function Footer() {
             <Image src="/ant-design_linkedin-filled (1).png" alt="Instagram" width={32} height={32} />
           </Link>
         </div>
-        <div className="flex flex-row gap-8 mb-8 justify-center text-[16px] text-gray-700 font-normal flex-wrap">
-          <Link href="#" className="hover:text-[#04A15B]">About us</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Works</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Services</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Blog</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Why Choose Us</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Our Process</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Careers</Link>
-          <Link href="#" className="hover:text-[#04A15B]">Contact Us</Link>
+        <div className="flex flex-row mb-8 justify-center text-[16px] text-gray-700 font-normal flex-wrap" style={{paddingTop: '16px'}}>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">About us</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Works</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Services</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Blog</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Why Choose Us</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Our Process</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Careers</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6">Contact Us</Link>
         </div>
         <hr className="border-t border-gray-200 mb-0" style={{ width: 'calc(100% - 64px)', marginLeft: '32px', marginRight: '32px' }} />
         <div className="w-full flex flex-row justify-between items-center py-8" style={{ paddingLeft: '32px', paddingRight: '32px', width: '100%' }}>
