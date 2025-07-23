@@ -37,14 +37,14 @@ export default function Footer() {
           </Link>
         </div>
         <div className="flex flex-row mb-8 justify-center text-[16px] text-gray-700 font-normal flex-wrap" style={{paddingTop: '16px'}}>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">About us</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Works</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Services</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Blog</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Why Choose Us</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Our Process</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Careers</Link>
-          <Link href="#" className="hover:text-[#04A15B] mx-6">Contact Us</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">About us</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Works</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Services</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Blog</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Why Choose Us</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Our Process</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Careers</Link>
+          <Link href="#" className="hover:text-[#04A15B] mx-6 text-[14px]">Contact Us</Link>
         </div>
         <hr className="border-t border-gray-200 mb-0" style={{ width: 'calc(100% - 64px)', marginLeft: '32px', marginRight: '32px' }} />
         <div className="w-full flex flex-row justify-between items-center py-8" style={{ paddingLeft: '32px', paddingRight: '32px', width: '100%' }}>

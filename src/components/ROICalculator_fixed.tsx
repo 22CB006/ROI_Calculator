@@ -92,7 +92,7 @@ export default function ROICalculator() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-green-100 via-white to-green-100 flex items-center justify-center" style={{ width: '100vw', marginTop: 0 }}>
       {showResults && results ? (
         <div style={{ width: '100%', maxWidth: '900px', height: '808px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
           <div className="bg-white shadow-lg border border-gray-200 flex flex-row" style={{ width: '900px', height: '808px', borderRadius: '12px', padding: '40px' }}>
@@ -262,7 +262,7 @@ export default function ROICalculator() {
           </div>
         </div>
       ) : (
-        <div style={{ width: '100%', maxWidth: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ width: '100%', maxWidth: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px', background: '#F0F9F5' }}>
           <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', height: '808px', paddingTop: '20px', paddingRight: '40px', paddingBottom: '40px', paddingLeft: '40px', borderRadius: '12px' }}>
             {/* Header */}
             <div className="mb-6 lg:mb-8">
@@ -538,6 +538,6 @@ export default function ROICalculator() {
           },
         }}
       />
-    </>
+    </div>
   );
 }

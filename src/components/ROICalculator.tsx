@@ -398,10 +398,10 @@ export default function ROICalculator() {
         </div>
       ) : (
         <div style={{ width: '100%', maxWidth: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
-          <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', height: '808px', paddingTop: '20px', paddingRight: '40px', paddingBottom: '40px', paddingLeft: '40px', borderRadius: '12px' }}>
+          <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', paddingTop: '25px', paddingRight: '32px', paddingBottom: '32px', paddingLeft: '32px', borderRadius: '12px' }}>
             {/* Header */}
             <div className="mb-6 lg:mb-8">
-              <div className="flex items-center justify-center mb-4">
+            <div className="flex items-center justify-center mb-2">
                 <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center mr-3">
                   <Image 
                     src="/garden_growth-chart-fill-16.png" 
