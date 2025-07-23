@@ -10,7 +10,7 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white border-b border-gray-100 w-full max-w-[1440px] h-16 lg:h-[88px] flex items-center relative mx-auto" style={{ paddingLeft: '100px', paddingRight: '100px' }}>
+    <header className="bg-white border-b border-gray-100 w-full h-16 lg:h-[88px] flex items-center relative" style={{ paddingLeft: '100px', paddingRight: '100px' }}>
       <div className="w-full flex items-center" style={{ justifyContent: 'space-between' }}>
         {/* Logo */}
         <Link href="/" className="flex items-center flex-shrink-0">
@@ -24,7 +24,7 @@ export default function Header() {
         </Link>
 
         {/* Navigation - Desktop */}
-        <nav className="hidden lg:flex items-center gap-[24px] flex-shrink" style={{ marginLeft: '40px' }}>
+        <nav className="hidden lg:flex items-center gap-[38px] flex-shrink" style={{ marginLeft: '60px' }}>
           <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Portfolio
           </Link>

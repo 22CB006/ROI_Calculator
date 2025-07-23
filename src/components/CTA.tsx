@@ -1,6 +1,6 @@
 export default function CTA() {
   return (
-    <div className="w-full flex justify-center items-center py-12" style={{background:'transparent'}}>
+    <div className="w-full flex justify-center items-center" style={{background:'transparent', paddingTop: '40px', paddingBottom: '60px'}}>
       <div className="relative w-full max-w-[1240px] h-[270px] rounded-[16px] flex items-center px-6 lg:px-[48px] mx-4 lg:mx-0" style={{background:'linear-gradient(90deg, #181C1B 80%, #0CA15B 100%)', boxShadow:'0 2px 24px 0 rgba(0,0,0,0.08)'}}>
         {/* Grid overlay */}
         <div className="absolute inset-0 pointer-events-none rounded-[16px]" style={{background:'url(/grid.svg)', opacity:0.18}}></div>

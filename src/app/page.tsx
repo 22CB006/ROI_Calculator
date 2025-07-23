@@ -8,7 +8,7 @@ import CTA from '@/components/CTA';
 export default function Home() {
   return (
     <div className="w-full bg-gray-50 min-h-screen">
-      <div className="w-full max-w-[1440px] mx-auto px-0 overflow-hidden">
+      <div className="w-full px-0 overflow-hidden">
         <Header />
         
         <main className="w-full">
@@ -18,12 +18,12 @@ export default function Home() {
           </section>
 
           {/* FAQ Section */}
-          <section className="py-8 md:py-16 bg-white">
+          <section className="bg-white" style={{ paddingTop: '100px', paddingBottom: '50px' }}>
             <FAQ />
           </section>
 
           {/* About Us Section */}
-          <section id="about" className="py-8 md:py-16">
+          <section id="about" style={{ marginTop: '-30px', paddingTop: '32px', paddingBottom: '16px' }}>
             <AboutUs />
           </section>
 
