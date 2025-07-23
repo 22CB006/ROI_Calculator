@@ -39,7 +39,19 @@ export default function FAQ() {
                 onClick={() => toggleFAQ(index)}
                 className="w-full px-4 lg:px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
               >
-                <span className="text-[18px] font-plus-jakarta-sans text-[#131514] pr-4 leading-[140%] tracking-[0%]" style={{ fontWeight: '400' }}>{faq.question}</span>
+                <span
+                  className="pr-4"
+                  style={{
+                    fontFamily: 'Plus Jakarta Sans, sans-serif',
+                    fontWeight: 600,
+                    fontSize: '20px',
+                    lineHeight: '150%',
+                    color: '#131514',
+                    letterSpacing: '0%'
+                  }}
+                >
+                  {faq.question}
+                </span>
                 {openIndex === index ? (
                   <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 ) : (

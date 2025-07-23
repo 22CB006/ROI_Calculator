@@ -3,7 +3,10 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📧 Email API called');
     const body = await request.json();
+    console.log('📝 Request body received:', { email: body.email, teamMembers: body.teamMembers });
+    
     const { 
       email, 
       teamMembers, 
@@ -18,31 +21,40 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!email || !teamMembers || !hoursPerWeek || !hourlyRate) {
+      console.log('❌ Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    console.log('🔐 Checking email configuration...');
+    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
+
     // Check if email configuration is set up
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || 
         process.env.EMAIL_USER === 'your-email@gmail.com' || 
         process.env.EMAIL_PASS === 'your-app-password') {
-      console.log('Email configuration not set up properly');
+      console.log('❌ Email configuration not set up properly');
       return NextResponse.json(
         { error: 'Email service not configured. Please check EMAIL_SETUP.md for setup instructions.' },
         { status: 503 }
       );
     }
 
-    // Create transporter (you'll need to configure this with your email service)
+    console.log('📬 Creating email transporter...');
+
+    // Create transporter (note: it's createTransport, not createTransporter)
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // or your preferred email service
+      service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER, // Your email
-        pass: process.env.EMAIL_PASS, // Your email password or app password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
+
+    console.log('✅ Transporter created successfully');
 
     // Generate HTML email content
     const htmlContent = `
@@ -122,7 +134,7 @@ export async function POST(request: NextRequest) {
                     
                     <div class="result-card break-even-card">
                         <h3 class="break-even-text">Break-Even Timeline</h3>
-                        <div class="result-amount break-even-text">${breakEvenMonths} months</div>
+                        <div class="result-amount break-even-text">${breakEvenMonths.toFixed(2)} months</div>
                         <p>Time to recover automation investment</p>
                     </div>
                     
@@ -134,7 +146,7 @@ export async function POST(request: NextRequest) {
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                    <a href="#" class="cta-button">Book a Free 30-min Consultation</a>
+                    <a href="mailto:aryalakshmi.unoia@gmail.com?subject=Book%20Free%20Consultation" class="cta-button">Book a Free 30-min Consultation</a>
                 </div>
                 
                 <div class="note">
@@ -159,13 +171,16 @@ export async function POST(request: NextRequest) {
       html: htmlContent,
     };
 
+    console.log('📤 Sending email to:', email);
     await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully');
 
     return NextResponse.json({ message: 'Email sent successfully' });
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Error sending email:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { error: 'Failed to send email' },
+      { error: `Failed to send email: ${errorMessage}` },
       { status: 500 }
     );
   }
