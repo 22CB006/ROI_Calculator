@@ -174,7 +174,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Number of employees doing manual work. Enter the total count of people performing manual tasks.
+                        &quot;Enter how many team members handle repetitive, manual tasks weekly.&quot;
                       </span>
                     </span>
                   </div>
@@ -211,7 +211,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Average weekly hours worked per employee on manual tasks.
+                        &quot;Average hours each employee spends on manual work in a typical week.&quot;
                       </span>
                     </span>
                   </div>
@@ -248,7 +248,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Hourly cost per employee, including overheads and benefits.
+                        &quot;Include base wage + overhead costs (e.g., tools, benefits, office space).&quot;
                       </span>
                     </span>
                   </div>
@@ -284,7 +284,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Estimated monthly cost due to errors in manual work. Optional field.
+                        &quot;How much do errors from manual work cost you monthly (in ₹/$)?&quot;
                       </span>
                     </span>
                   </div>
@@ -319,7 +319,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Average cost per error in manual work. Optional field.
+                        &quot;Estimated average cost every time a manual error occurs (e.g., ₹100).&quot;
                       </span>
                     </span>
                   </div>
@@ -418,8 +418,21 @@ export default function ROICalculator() {
             </div>
             {/* Note Section - Full Width at Bottom */}
             <div className="w-full mt-6" style={{ padding: '0 40px' }}>
-              <div className="bg-[#F7FAFC] border border-[#E2E8F0] rounded-lg px-6 py-4 text-[14px]" style={{color:'#6F7E8A', fontFamily: 'Plus Jakarta Sans, sans-serif'}}>
-                <span className="font-semibold">Note:</span> Results are estimates based on industry averages. Actual savings may vary depending on your specific workflows and automation implementation.
+              <div
+                className="bg-[#F7FAFC] border border-[#E2E8F0] rounded-lg px-6 py-4 flex items-start"
+                style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', color: '#64748B' }}
+              >
+                <span
+                  className="mr-2"
+                  style={{ fontWeight: 600, fontSize: '18px', lineHeight: '28px', color: '#64748B', letterSpacing: 0 }}
+                >
+                  Note:
+                </span>
+                <span
+                  style={{ fontWeight: 400, fontSize: '18px', lineHeight: '28px', color: '#64748B', letterSpacing: 0 }}
+                >
+                  Results are estimates based on industry averages. Actual savings may vary depending on your specific workflows and automation implementation.
+                </span>
               </div>
             </div>
           </div>
@@ -482,7 +495,7 @@ export default function ROICalculator() {
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
                         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                          Number of employees doing manual work. Enter the total count of people performing manual tasks.
+                        Enter how many team members handle repetitive, manual tasks weekly.
                         </span>
                       </span>
                     </div>
@@ -513,7 +526,7 @@ export default function ROICalculator() {
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
                         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                          Average weekly hours worked per employee on manual tasks.
+                          Average hours each employee spends on manual work in a typical week.
                         </span>
                       </span>
                     </div>
@@ -547,7 +560,7 @@ export default function ROICalculator() {
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
                         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                          Hourly cost per employee, including overheads and benefits.
+                          Include base wage + overhead costs (e.g., tools, benefits, office space).
                         </span>
                       </span>
                     </div>
@@ -600,7 +613,7 @@ export default function ROICalculator() {
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
                         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                          Estimated monthly cost due to errors in manual work. Optional field.
+                          How much do errors from manual work cost you monthly (in ₹/$)?
                         </span>
                       </span>
                   </div>
@@ -630,7 +643,7 @@ export default function ROICalculator() {
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
                         <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                          Average cost per error in manual work. Optional field.
+                          Estimated average cost every time a manual error occurs (e.g., ₹100).
                         </span>
                       </span>
                   </div>
@@ -664,12 +677,23 @@ export default function ROICalculator() {
                   Get Your Report
                 </h3>
               </div>
-              
               <div>
-                <div className="mb-2">
+                <div className="mb-2 flex items-center">
                   <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                     Your email <span className="text-red-500">*</span>
                   </label>
+                  <span className="relative group ml-2">
+                    <Image 
+                      src="/material-symbols_info-rounded.png" 
+                      alt="Info icon" 
+                      width={16} 
+                      height={16}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      We’ll email your full savings report—no spam, promise.
+                    </span>
+                  </span>
                 </div>
                 <input
                   type="email"
