@@ -152,16 +152,13 @@ export default function ROICalculator() {
       {showResults && results ? (
         <div style={{ width: '100%', maxWidth: '1440px', height: '908px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
           <div className="bg-white shadow-lg border border-gray-200 flex flex-col" style={{ width: '900px', height: '808px', borderRadius: '12px', padding: '20px 0' }}>
-            {/* Centered Header above sections */}
-            <div className="w-full flex justify-center items-center mb-6">
-              <div className="flex items-center justify-center">
-                <Image src="/garden_growth-chart-fill-16.png" alt="Growth chart icon" width={32} height={32} className="mr-2" />
-                <h2 className="text-center font-semibold text-[#101F2F] text-[32px] leading-[40px] tracking-[-0.02em]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 600 }}>
-                  Workflow ROI Calculator
-                </h2>
-              </div>
+            {/* Editable Header with Icon */}
+            <div className="flex items-center justify-center mb-6">
+              <Image src="/garden_growth-chart-fill-16.png" alt="Growth chart icon" width={32} height={32} className="mr-2" />
+              <h2 className="text-[32px] font-semibold text-[#101F2F] leading-[40px] tracking-[-0.02em]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }} contentEditable suppressContentEditableWarning={true}>
+                Workflow ROI Calculator
+              </h2>
             </div>
-            {/* Top: Input Fields and Results in Two Columns */}
             <div className="flex flex-row flex-1" style={{ padding: '0 40px' }}>
               {/* Left: Editable Input Fields */}
               <div className="flex flex-col justify-start w-1/2 pr-0 gap-2" style={{ paddingLeft: '0px', marginLeft: '-12px' }}>
@@ -174,28 +171,16 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        &quot;Enter how many team members handle repetitive, manual tasks weekly.&quot;
+                        Enter how many team members handle repetitive, manual tasks weekly.
                       </span>
                     </span>
                   </div>
                   <input
-                    type="text"
+                    type="number"
+                    step="any"
                     name="teamMembers"
                     value={formData.teamMembers === 0 ? '' : formData.teamMembers}
-                    onChange={e => {
-                      const val = e.target.value;
-                      // Allow positive decimals, block negatives, specials, alpha
-                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
-                        handleInputChange({
-                          ...e,
-                          target: {
-                            ...e.target,
-                            value: val,
-                            type: 'number',
-                          }
-                        });
-                      }
-                    }}
+                    onChange={handleInputChange}
                     min="0"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
@@ -211,27 +196,16 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        &quot;Average hours each employee spends on manual work in a typical week.&quot;
+                        Average hours each employee spends on manual work in a typical week.
                       </span>
                     </span>
                   </div>
                   <input
-                    type="text"
+                    type="number"
+                    step="any"
                     name="hoursPerWeek"
                     value={formData.hoursPerWeek === 0 ? '' : formData.hoursPerWeek}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
-                        handleInputChange({
-                          ...e,
-                          target: {
-                            ...e.target,
-                            value: val,
-                            type: 'number',
-                          }
-                        });
-                      }
-                    }}
+                    onChange={handleInputChange}
                     min="0"
                     max="168"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
@@ -248,27 +222,16 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        &quot;Include base wage + overhead costs (e.g., tools, benefits, office space).&quot;
+                        Include base wage + overhead costs (e.g., tools, benefits, office space).
                       </span>
                     </span>
                   </div>
                   <input
-                    type="text"
+                    type="number"
+                    step="any"
                     name="hourlyRate"
                     value={formData.hourlyRate === 0 ? '' : formData.hourlyRate}
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (/^(\d*\.?\d*)$/.test(val) || val === '') {
-                        handleInputChange({
-                          ...e,
-                          target: {
-                            ...e.target,
-                            value: val,
-                            type: 'number',
-                          }
-                        });
-                      }
-                    }}
+                    onChange={handleInputChange}
                     min="0"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
@@ -284,7 +247,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        &quot;How much do errors from manual work cost you monthly (in ₹/$)?&quot;
+                        How much do errors from manual work cost you monthly (in ₹/$)?
                       </span>
                     </span>
                   </div>
@@ -319,7 +282,7 @@ export default function ROICalculator() {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        &quot;Estimated average cost every time a manual error occurs (e.g., ₹100).&quot;
+                        Estimated average cost every time a manual error occurs (e.g., ₹100).
                       </span>
                     </span>
                   </div>
@@ -346,7 +309,7 @@ export default function ROICalculator() {
                   />
                 </div>
               </div>
-              {/* ...existing code... */}
+              {/* Right: Results/Outputs */}
               <div className="flex flex-col items-center justify-center w-1/2 pl-8 gap-0">
                 {/* Output Boxes - Reduced Spacing */}
                 <div className="flex flex-col gap-2 w-full items-center">
@@ -366,11 +329,7 @@ export default function ROICalculator() {
                       <div className="text-[#D97706] text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Break-even in</div>
                       <div className="flex flex-row items-baseline w-full">
                         <span className="text-[#D97706] text-[36px] font-bold leading-[44px]" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>{results.breakEvenMonths}</span>
-                        <span className="text-[#D97706] text-[24px] font-medium ml-2" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>months if automated
-                          {results.breakEvenMonths % 1 !== 0 ? (
-                            <span className="text-[#D97706] text-[16px] font-normal ml-2">({Math.round(results.breakEvenMonths * 30)} days)</span>
-                          ) : null}
-                        </span>
+                        <span className="text-[#D97706] text-[24px] font-medium ml-2" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>months if automated</span>
                       </div>
                     </div>
                   </div>
@@ -391,7 +350,7 @@ export default function ROICalculator() {
                       className="flex items-center justify-center gap-2 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-[14px] font-medium leading-[20px] disabled:opacity-50 whitespace-nowrap"
                       style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '32px', minWidth: '142px', maxWidth: '142px' }}
                     >
-                      <Image src="/recalculate.png" alt="Recalculate icon" width={20} height={20} />
+                      <Image src="/recalculate.png" alt="Recalculate icon" width={32} height={32} className="mr-2" />
                       Re-Calculate
                     </button>
                   </div>
