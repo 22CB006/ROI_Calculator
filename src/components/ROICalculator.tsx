@@ -343,7 +343,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
                       <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        We'll email your full savings report—no spam, promise.
+                        We&rsquo;ll email your full savings report—no spam, promise.
                       </span>
                     </span>
                   </div>
@@ -732,7 +732,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                       className="w-4 h-4 cursor-pointer"
                     />
                     <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                      We'll email your full savings report—no spam, promise.
+                      We&rsquo;ll email your full savings report—no spam, promise.
                     </span>
                   </span>
                 </div>
