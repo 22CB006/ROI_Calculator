@@ -398,7 +398,7 @@ export default function ROICalculator() {
         </div>
       ) : (
         <div style={{ width: '100%', maxWidth: '1440px', height: '980px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '0 auto', padding: '0 20px' }}>
-          <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', height: '808px', paddingTop: '30px', paddingRight: '40px', paddingBottom: '120px', paddingLeft: '40px', borderRadius: '12px', marginTop: '86px' }}>
+          <div className="bg-white shadow-lg border border-gray-200" style={{ width: '100%', maxWidth: '900px', height: '808px', paddingTop: '30px', paddingRight: '40px', paddingBottom: '48px', paddingLeft: '40px', borderRadius: '12px', marginTop: '86px' }}>
             {/* Header */}
             <div>
               <div className="flex items-center justify-center mb-4">
@@ -468,6 +468,11 @@ export default function ROICalculator() {
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 20"
+                    onKeyDown={e => {
+                      if (["e", "E", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     />
                   </div>
 
@@ -500,6 +505,11 @@ export default function ROICalculator() {
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 40"
+                    onKeyDown={e => {
+                      if (["e", "E", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     />
                   </div>
                 </div>
@@ -533,6 +543,11 @@ export default function ROICalculator() {
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                     style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                     placeholder="e.g., 50"
+                    onKeyDown={e => {
+                      if (["e", "E", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     />
                   </div>
                   <div></div>
@@ -582,9 +597,15 @@ export default function ROICalculator() {
                       name="monthlyErrorCost"
                       value={formData.monthlyErrorCost === 0 ? '' : formData.monthlyErrorCost}
                       onChange={handleInputChange}
+                      min="0"
                       className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                       style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                       placeholder="e.g., 1000"
+                      onKeyDown={e => {
+                        if (["e", "E", "-", "+"].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                   />
                 </div>
 
@@ -612,9 +633,15 @@ export default function ROICalculator() {
                       name="costPerError"
                       value={formData.costPerError === 0 ? '' : formData.costPerError}
                       onChange={handleInputChange}
+                      min="0"
                       className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
                       style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
                       placeholder="e.g., 100"
+                      onKeyDown={e => {
+                        if (["e", "E", "-", "+"].includes(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                   />
                 </div>
               </div>
@@ -668,7 +695,7 @@ export default function ROICalculator() {
             </div>
 
             {/* Calculate Button */}
-            <div className="text-center" style={{ marginBottom: '40px' }}>
+            <div className="text-center">
               <button
                 onClick={calculateROI}
                 disabled={isLoading}
@@ -678,6 +705,7 @@ export default function ROICalculator() {
                 {isLoading ? 'Calculating & Sending Report...' : 'Calculate ROI'}
               </button>
             </div>
+            <div className="mt-10" />
           </div>
         </div>
       )}

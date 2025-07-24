@@ -499,7 +499,7 @@ export default function ROICalculator() {
             </div>
 
             {/* Calculate Button */}
-            <div className="text-center">
+            <div className="text-center mb-10">
               <button
                 onClick={calculateROI}
                 disabled={isLoading}

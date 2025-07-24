@@ -87,7 +87,9 @@ export default function Header() {
         </nav>
 
         {/* Let's Talk Button - Desktop */}
-        <div className="hidden lg:flex items-center flex-shrink-0" style={{ marginLeft: 'auto' }}>
+        <div
+          className="hidden lg:flex items-center flex-shrink-0 lg:ml-8 xl:ml-12"
+        >
           <Link
             href="#"
             className="bg-[#04A15B] text-white px-4 xl:px-6 py-3 rounded-[8px] text-sm font-medium hover:bg-[#038549] transition-colors h-[48px] flex items-center justify-center whitespace-nowrap"
