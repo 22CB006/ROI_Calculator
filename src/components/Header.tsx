@@ -5,7 +5,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-export default function Header() {
+interface HeaderProps {
+  activeSection?: string;
+}
+
+export default function Header({ activeSection }: HeaderProps) {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -69,7 +73,15 @@ export default function Header() {
           <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
             Why Choose Us
           </Link>
-          <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
+          <Link 
+            href="#calculator" 
+            className={`transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap ${
+              activeSection === 'calculator' 
+                ? 'text-[#04A15B] font-semibold' 
+                : 'text-[#131514] hover:text-[#04A15B]'
+            }`} 
+            style={{ fontFamily: 'PP Mori, sans-serif' }}
+          >
             ROI Calculator
           </Link>
           <Link href="#" className="text-[#131514] hover:text-[#04A15B] transition-colors text-[14px] font-normal leading-[100%] tracking-[0%] whitespace-nowrap" style={{ fontFamily: 'PP Mori, sans-serif' }}>
@@ -123,7 +135,14 @@ export default function Header() {
             <Link href="#" className="block py-2 text-gray-600 hover:text-[#04A15B] text-sm font-medium">
               Why Choose Us
             </Link>
-            <Link href="#" className="block py-2 text-gray-600 hover:text-[#04A15B] text-sm font-medium">
+            <Link 
+              href="#calculator" 
+              className={`block py-2 text-sm font-medium ${
+                activeSection === 'calculator' 
+                  ? 'text-[#04A15B]' 
+                  : 'text-gray-600 hover:text-[#04A15B]'
+              }`}
+            >
               ROI Calculator
             </Link>
             <Link href="#" className="block py-2 text-gray-600 hover:text-[#04A15B] text-sm font-medium">

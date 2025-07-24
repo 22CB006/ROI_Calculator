@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -19,7 +19,11 @@ interface Results {
   annualSavings: number;
 }
 
-export default function ROICalculator() {
+interface ROICalculatorProps {
+  onActiveChange?: (isActive: boolean) => void;
+}
+
+export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
   const [formData, setFormData] = useState<FormData>({
     teamMembers: 0,
     hoursPerWeek: 0,
@@ -32,6 +36,13 @@ export default function ROICalculator() {
   const [results, setResults] = useState<Results | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Notify parent when results are shown/hidden
+  useEffect(() => {
+    if (onActiveChange) {
+      onActiveChange(showResults);
+    }
+  }, [showResults, onActiveChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -153,7 +164,7 @@ export default function ROICalculator() {
         <div style={{ width: '100%', maxWidth: '1440px', height: '908px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
           <div className="bg-white shadow-lg border border-gray-200 flex flex-col" style={{ width: '900px', height: '808px', borderRadius: '12px', padding: '20px 0' }}>
             {/* Editable Header with Icon */}
-            <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center mb-8">
               <Image src="/garden_growth-chart-fill-16.png" alt="Growth chart icon" width={32} height={32} className="mr-2" />
               <h2 className="text-[32px] font-semibold text-[#101F2F] leading-[40px] tracking-[-0.02em]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }} contentEditable suppressContentEditableWarning={true}>
                 Workflow ROI Calculator
@@ -161,7 +172,7 @@ export default function ROICalculator() {
             </div>
             <div className="flex flex-row flex-1" style={{ padding: '0 40px' }}>
               {/* Left: Editable Input Fields */}
-              <div className="flex flex-col justify-start w-1/2 pr-0 gap-2" style={{ paddingLeft: '0px', marginLeft: '-12px' }}>
+              <div className="flex flex-col justify-start w-1/2 pr-8 gap-4 overflow-y-auto" style={{ maxHeight: '600px' }}>
                 {/* Employees doing manual work */}
                 <div>
                   <div className="flex items-center mb-2">
@@ -170,7 +181,7 @@ export default function ROICalculator() {
                     </label>
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         Enter how many team members handle repetitive, manual tasks weekly.
                       </span>
                     </span>
@@ -183,8 +194,13 @@ export default function ROICalculator() {
                     onChange={handleInputChange}
                     min="0"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
                     placeholder="e.g., 20"
+                    onKeyDown={e => {
+                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
                 {/* Hours per employee/week */}
@@ -195,7 +211,7 @@ export default function ROICalculator() {
                     </label>
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         Average hours each employee spends on manual work in a typical week.
                       </span>
                     </span>
@@ -209,8 +225,13 @@ export default function ROICalculator() {
                     min="0"
                     max="168"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
                     placeholder="e.g., 40"
+                    onKeyDown={e => {
+                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
                 {/* Hourly cost (with overhead) */}
@@ -221,7 +242,7 @@ export default function ROICalculator() {
                     </label>
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         Include base wage + overhead costs (e.g., tools, benefits, office space).
                       </span>
                     </span>
@@ -234,8 +255,13 @@ export default function ROICalculator() {
                     onChange={handleInputChange}
                     min="0"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
                     placeholder="e.g., 50"
+                    onKeyDown={e => {
+                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
                 {/* Monthly error cost (optional) */}
@@ -246,7 +272,7 @@ export default function ROICalculator() {
                     </label>
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         How much do errors from manual work cost you monthly (in ₹/$)?
                       </span>
                     </span>
@@ -264,10 +290,10 @@ export default function ROICalculator() {
                     min="0"
                     step="1"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
                     placeholder="e.g., 1000"
                     onKeyDown={e => {
-                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
+                      if (["e", "E", "-", "+"].includes(e.key)) {
                         e.preventDefault();
                       }
                     }}
@@ -281,7 +307,7 @@ export default function ROICalculator() {
                     </label>
                     <span className="relative group">
                       <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         Estimated average cost every time a manual error occurs (e.g., ₹100).
                       </span>
                     </span>
@@ -299,22 +325,46 @@ export default function ROICalculator() {
                     min="0"
                     step="1"
                     className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '340px', height: '48px' }}
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
                     placeholder="e.g., 100"
                     onKeyDown={e => {
-                      if (["e", "E", ".", "-", "+"].includes(e.key)) {
+                      if (["e", "E", "-", "+"].includes(e.key)) {
                         e.preventDefault();
                       }
                     }}
                   />
                 </div>
+                {/* Email field */}
+                <div>
+                  <div className="flex items-center mb-2">
+                    <label className="block text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
+                      Your email <span className="text-red-500">*</span>
+                    </label>
+                    <span className="relative group">
+                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
+                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        We'll email your full savings report—no spam, promise.
+                      </span>
+                    </span>
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    className="px-3 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#101F2F] text-[16px] font-normal leading-[150%] tracking-[0%]"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', width: '300px', height: '48px' }}
+                    placeholder="Your@gmail.com"
+                  />
+                </div>
               </div>
               {/* Right: Results/Outputs */}
-              <div className="flex flex-col items-center justify-center w-1/2 pl-8 gap-0">
+              <div className="flex flex-col items-center justify-center w-1/2  gap-4">
                 {/* Output Boxes - Reduced Spacing */}
                 <div className="flex flex-col gap-2 w-full items-center">
                   {/* You're losing */}
-                  <div className="bg-[#FFECEC] rounded-lg flex flex-col items-start justify-center" style={{ width: '476px', height: '108px', border: '1px solid #FCA5A5', padding: '12px 20px' }}>
+                  <div className="bg-[#FFECEC] rounded-lg flex flex-col items-start justify-center" style={{ width: '436px', height: '108px', border: '1px solid #FCA5A5', padding: '12px 20px' }}>
                     <div className="flex flex-col w-full">
                       <div className="text-[#D23B3B] text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>You&rsquo;re losing</div>
                       <div className="flex flex-row items-baseline w-full">
@@ -324,7 +374,7 @@ export default function ROICalculator() {
                     </div>
                   </div>
                   {/* Break-even */}
-                  <div className="bg-[#FEF4CD] rounded-lg flex flex-col items-start justify-center" style={{ width: '476px', height: '108px', border: '1px solid #FDE68A', padding: '12px 20px' }}>
+                  <div className="bg-[#FEF4CD] rounded-lg flex flex-col items-start justify-center" style={{ width: '436px', height: '108px', border: '1px solid #FDE68A', padding: '12px 20px' }}>
                     <div className="flex flex-col w-full">
                       <div className="text-[#D97706] text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Break-even in</div>
                       <div className="flex flex-row items-baseline w-full">
@@ -333,17 +383,22 @@ export default function ROICalculator() {
                       </div>
                     </div>
                   </div>
-                  {/* Annual savings potential */}
-                  <div className="bg-[#E6F9ED] rounded-lg flex flex-col items-start justify-center" style={{ width: '476px', height: '108px', border: '1px solid #A7F3D0', padding: '12px 20px' }}>
+                  {/* Annual savings potential */}                  <div className={`rounded-lg flex flex-col items-start justify-center ${results.annualSavings >= 0 ? 'bg-[#E6F9ED] border-[#A7F3D0]' : 'bg-[#FEF2F2] border-[#FCA5A5]'}`} style={{ width: '436px', height: '108px', border: '1px solid', padding: '12px 20px' }}>
                     <div className="flex flex-col w-full">
-                      <div className="text-[#04A15B] text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Annual savings potential:</div>
+                      <div className={`text-[24px] font-medium mb-1 ${results.annualSavings >= 0 ? 'text-[#04A15B]' : 'text-[#DC2626]'}`} style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>
+                        {results.annualSavings >= 0 ? 'Annual savings potential:' : 'No profit with automation'}
+                      </div>
                       <div className="flex flex-row items-baseline w-full">
-                        <span className="text-[#04A15B] text-[36px] font-bold leading-[44px]" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>${results.annualSavings.toLocaleString()}</span>
+                        {results.annualSavings >= 0 ? (
+                          <span className="text-[#04A15B] text-[36px] font-bold leading-[44px]" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>${results.annualSavings.toLocaleString()}</span>
+                        ) : (
+                          <span className="text-[#DC2626] text-[24px] font-bold leading-[32px]" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Current setup not viable</span>
+                        )}
                       </div>
                     </div>
                   </div>
                   {/* Re-Calculate Button - aligned under Annual Savings */}
-                  <div className="flex flex-row justify-start mt-3 mb-2" style={{ width: '476px' }}>
+                  <div className="flex flex-row justify-start mt-3 mb-2" style={{ width: '436px' }}>
                     <button
                       onClick={calculateROI}
                       disabled={isLoading}
@@ -356,7 +411,7 @@ export default function ROICalculator() {
                   </div>
                 </div>
                 {/* Email/Book Buttons - Single row below Re-Calculate */}
-                <div className="flex flex-row gap-2 justify-center w-full">
+                <div className="flex flex-row gap-2 justify-center w-full" style={{ width: '436px' }}>
                   <button
                     onClick={sendEmailReport}
                     disabled={isLoading}
@@ -367,8 +422,8 @@ export default function ROICalculator() {
                   </button>
                   <button
                     onClick={bookConsult}
-                    className="flex-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-[14px] font-medium leading-[20px]"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '48px', minWidth: '264px', maxWidth: '264px' }}
+                    className="flex items-center justify-center gap-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-[14px] font-medium leading-[20px] whitespace-nowrap"
+                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '48px', minWidth: '220px', maxWidth: '220px' }}
                   >
                     Book a free 30–min consult →
                   </button>
@@ -453,7 +508,7 @@ export default function ROICalculator() {
                           height={16}
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                         Enter how many team members handle repetitive, manual tasks weekly.
                         </span>
                       </span>
@@ -489,7 +544,7 @@ export default function ROICalculator() {
                           height={16}
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Average hours each employee spends on manual work in a typical week.
                         </span>
                       </span>
@@ -528,7 +583,7 @@ export default function ROICalculator() {
                           height={16}
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Include base wage + overhead costs (e.g., tools, benefits, office space).
                         </span>
                       </span>
@@ -586,7 +641,7 @@ export default function ROICalculator() {
                           height={16}
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           How much do errors from manual work cost you monthly (in ₹/$)?
                         </span>
                       </span>
@@ -622,7 +677,7 @@ export default function ROICalculator() {
                           height={16}
                           className="w-4 h-4 ml-2 cursor-pointer"
                         />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Estimated average cost every time a manual error occurs (e.g., ₹100).
                         </span>
                       </span>
@@ -676,8 +731,8 @@ export default function ROICalculator() {
                       height={16}
                       className="w-4 h-4 cursor-pointer"
                     />
-                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-10 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                      We’ll email your full savings report—no spam, promise.
+                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      We'll email your full savings report—no spam, promise.
                     </span>
                   </span>
                 </div>

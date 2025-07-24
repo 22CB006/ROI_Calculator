@@ -36,7 +36,7 @@ export default function Footer() {
             <Image src="/ant-design_linkedin-filled (1).png" alt="Instagram" width={32} height={32} />
           </Link>
         </div>
-        <div className="flex flex-row mb-8 justify-center text-[16px] text-gray-700 font-normal flex-wrap" style={{paddingTop: '16px'}}>
+        <div className="flex flex-row mb-8 justify-center text-[14px] text-gray-700 font-normal flex-wrap" style={{paddingTop: '16px'}}>
           <Link href="#" className="hover:text-[#04A15B] mx-6">About us</Link>
           <Link href="#" className="hover:text-[#04A15B] mx-6">Works</Link>
           <Link href="#" className="hover:text-[#04A15B] mx-6">Services</Link>

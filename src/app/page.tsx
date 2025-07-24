@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ROICalculator from '@/components/ROICalculator';
@@ -6,15 +9,21 @@ import AboutUs from '@/components/AboutUs';
 import CTA from '@/components/CTA';
 
 export default function Home() {
+  const [activeSection, setActiveSection] = useState<string>('');
+
+  const handleCalculatorActiveChange = (isActive: boolean) => {
+    setActiveSection(isActive ? 'calculator' : '');
+  };
+
   return (
     <div className="w-full bg-gray-50 min-h-screen">
       <div className="w-full px-0 overflow-hidden">
-        <Header />
+        <Header activeSection={activeSection} />
         
         <main className="w-full">
           {/* ROI Calculator Section */}
           <section id="calculator" style={{ marginTop: '-25px' }}>
-            <ROICalculator />
+            <ROICalculator onActiveChange={handleCalculatorActiveChange} />
           </section>
 
           {/* FAQ Section */}
