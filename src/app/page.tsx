@@ -22,7 +22,7 @@ export default function Home() {
         
         <main className="w-full">
           {/* ROI Calculator Section */}
-          <section id="calculator" style={{ marginTop: '-25px' }}>
+          <section id="calculator">
             <ROICalculator onActiveChange={handleCalculatorActiveChange} />
           </section>
 

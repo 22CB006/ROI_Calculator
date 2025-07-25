@@ -28,23 +28,22 @@ export default function FAQ() {
   return (
     <div className="mx-auto px-4" style={{ width: '100%', maxWidth: '1440px', margin: '0 auto' }}>
       <div className="bg-white w-full" style={{ paddingBottom: '40px' }}>
-        <h2 className="text-[48px] font-plus-jakarta-sans leading-[140%] tracking-[-0.05em] text-[#131514] text-center mb-6 lg:mb-8" style={{ fontWeight: '600' }}>
+        <h2 className="text-2xl lg:text-[48px] font-plus-jakarta-sans leading-tight lg:leading-[140%] tracking-[-0.05em] text-[#131514] text-center mb-4 lg:mb-8 px-4" style={{ fontWeight: '600' }}>
           Frequently Asked Questions
         </h2>
         
-        <div className="space-y-4 max-w-[800px] mx-auto">
+        <div className="space-y-3 lg:space-y-4 max-w-[800px] mx-auto px-4 lg:px-0">
           {faqData.map((faq, index) => (
             <div key={index} className="border border-gray-200 rounded-lg">
               <button
                 onClick={() => toggleFAQ(index)}
-                className="w-full px-4 lg:px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                className="w-full px-3 lg:px-6 py-3 lg:py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
               >
                 <span
-                  className="pr-4"
+                  className="pr-2 lg:pr-4 text-sm lg:text-[20px]"
                   style={{
                     fontFamily: 'Plus Jakarta Sans, sans-serif',
                     fontWeight: 600,
-                    fontSize: '20px',
                     lineHeight: '150%',
                     color: '#131514',
                     letterSpacing: '0%'
@@ -53,18 +52,18 @@ export default function FAQ() {
                   {faq.question}
                 </span>
                 {openIndex === index ? (
-                  <ChevronUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <ChevronUp className="w-4 h-4 lg:w-5 lg:h-5 text-gray-400 flex-shrink-0" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <ChevronDown className="w-4 h-4 lg:w-5 lg:h-5 text-gray-400 flex-shrink-0" />
                 )}
               </button>
               {openIndex === index && (
                 <div>
-                  <div className="px-4 lg:px-6">
+                  <div className="px-3 lg:px-6">
                     <hr className="border-gray-200 border-t" />
                   </div>
-                  <div className="px-4 lg:px-6 py-4">
-                    <p className="text-[18px] font-plus-jakarta-sans text-[#6F7E8A] leading-[140%] tracking-[0%]" style={{ fontWeight: '400' }}>{faq.answer}</p>
+                  <div className="px-3 lg:px-6 py-3 lg:py-4">
+                    <p className="text-sm lg:text-[18px] font-plus-jakarta-sans text-[#6F7E8A] leading-tight lg:leading-[140%] tracking-[0%]" style={{ fontWeight: '400' }}>{faq.answer}</p>
                   </div>
                 </div>
               )}
