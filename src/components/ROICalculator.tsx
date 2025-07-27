@@ -306,7 +306,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
     <>
       {showResults && results ? (
         <div style={{ width: '100%', maxWidth: '1440px', minHeight: '908px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '40px 20px', backgroundColor: '#F0F8F4' }}>
-          <div className="bg-white shadow-lg border border-gray-200 flex flex-col w-full max-w-[900px] min-h-[808px] rounded-xl p-5 lg:p-0" style={{ borderRadius: '12px' }}>
+          <div className="bg-white flex flex-col w-full max-w-[900px] min-h-[808px] rounded-xl p-5 lg:p-0" style={{ borderRadius: '12px' }}>
             {/* Editable Header with Icon */}
             <div className="flex items-center justify-center mb-12 lg:mb-16 mt-8 lg:mt-12">
               <Image src="/garden_growth-chart-fill-16.png" alt="Growth chart icon" width={32} height={32} className="mr-2 w-6 h-6 lg:w-8 lg:h-8" />
@@ -660,7 +660,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
         </div>
       ) : (
         <div style={{ width: '100%', maxWidth: '1440px', minHeight: '980px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '40px 20px', backgroundColor: '#F0F8F4' }}>
-          <div className="bg-white shadow-lg border border-gray-200 w-full max-w-[900px] min-h-[808px] p-6 lg:p-10" style={{ borderRadius: '12px' }}>
+          <div className="bg-white w-full max-w-[900px] min-h-[808px] p-6 lg:p-10" style={{ borderRadius: '12px' }}>
             {/* Header */}
             <div>
               <div className="flex items-center justify-center mb-0">
