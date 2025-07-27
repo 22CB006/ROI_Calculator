@@ -27,7 +27,7 @@ export default function Home() {
           </section>
 
           {/* FAQ Section */}
-          <section className="bg-white" style={{ paddingTop: '100px', paddingBottom: '50px' }}>
+          <section className="bg-white pt-30 md:pt-36 lg:pt-[140px] pb-12 lg:pb-[50px]">
             <FAQ />
           </section>
 

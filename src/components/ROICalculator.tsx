@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -36,6 +36,14 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
   const [results, setResults] = useState<Results | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{[key: string]: {top: boolean, left: boolean | null}}>({});
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Set mounted state after component mounts
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Notify parent when results are shown/hidden
   useEffect(() => {
@@ -43,6 +51,142 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
       onActiveChange(showResults);
     }
   }, [showResults, onActiveChange]);
+
+  // Recalculate tooltip positions on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (activeTooltip) {
+        const element = document.querySelector(`[data-tooltip-id="${activeTooltip}"]`) as HTMLElement;
+        if (element) {
+          calculateTooltipPosition(activeTooltip, element);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [activeTooltip]);
+
+  // Close tooltip when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (activeTooltip && !(event.target as Element).closest('.tooltip-container')) {
+        setActiveTooltip(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [activeTooltip]);
+
+  const calculateTooltipPosition = (tooltipId: string, element: HTMLElement) => {
+    const rect = element.getBoundingClientRect();
+    const tooltipHeight = 80; // Approximate tooltip height
+    const tooltipWidth = 280; // Approximate tooltip width
+    
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceLeft = rect.left;
+    const spaceRight = window.innerWidth - rect.right;
+    
+    // Position above or below based on available space
+    const top = spaceAbove < tooltipHeight + 20;
+    
+    // Position left, center, or right based on available space
+    let left: boolean | null = null;
+    
+    // Check if there's enough space to center the tooltip
+    const canCenter = spaceLeft >= tooltipWidth / 2 && spaceRight >= tooltipWidth / 2;
+    
+    if (!canCenter) {
+      // If we can't center, check which side has more space
+      if (spaceLeft >= spaceRight) {
+        left = true; // Align to left
+      } else {
+        left = false; // Align to right
+      }
+    } else {
+      left = null; // Center (default)
+    }
+    
+    setTooltipPosition(prev => ({
+      ...prev,
+      [tooltipId]: { top, left }
+    }));
+  };
+
+  const handleTooltipToggle = (tooltipId: string) => {
+    if (activeTooltip === tooltipId) {
+      setActiveTooltip(null);
+    } else {
+      setActiveTooltip(tooltipId);
+      // Calculate position after a longer delay to ensure DOM is fully updated
+      setTimeout(() => {
+        const element = document.querySelector(`[data-tooltip-id="${tooltipId}"]`) as HTMLElement;
+        if (element) {
+          calculateTooltipPosition(tooltipId, element);
+        }
+      }, 50);
+    }
+  };
+
+  const handleTooltipTouch = (e: React.TouchEvent, tooltipId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleTooltipToggle(tooltipId);
+  };
+
+  const isTablet = () => {
+    const viewportWidth = window.innerWidth;
+    return viewportWidth > 768 && viewportWidth <= 1024;
+  };
+
+  const getTooltipClasses = (tooltipId: string) => {
+    // Only calculate positioning after component has mounted on client
+    if (!isMounted) {
+      return 'bottom-full mb-2 left-1/2 -translate-x-1/2';
+    }
+    
+    const position = tooltipPosition[tooltipId] || { top: false, left: null };
+    
+    let positioningClasses = '';
+    
+    // Always position above by default, but check if we need to position below
+    if (position.top) {
+      // Position below if not enough space above
+      positioningClasses = 'top-full mt-2';
+    } else {
+      // Position above (default)
+      positioningClasses = 'bottom-full mb-2';
+    }
+    
+    // Get current viewport width
+    const viewportWidth = window.innerWidth;
+    
+    // For mobile devices (phones), always center the tooltip
+    if (viewportWidth <= 768) {
+      positioningClasses += ' left-1/2 -translate-x-1/2';
+    }
+    // For tablet devices, always center the tooltip for better alignment
+    else if (viewportWidth > 768 && viewportWidth <= 1024) {
+      positioningClasses += ' left-1/2 -translate-x-1/2';
+    }
+    // On desktop, use the calculated position
+    else {
+      if (position.left === true) {
+        // Align to left if not enough space on left
+        positioningClasses += ' left-0';
+      } else if (position.left === false) {
+        // Align to right if not enough space on right
+        positioningClasses += ' right-0';
+      } else {
+        // Center (default)
+        positioningClasses += ' left-1/2 -translate-x-1/2';
+      }
+    }
+    
+    return positioningClasses;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -161,7 +305,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
   return (
     <>
       {showResults && results ? (
-        <div className="mt-8 lg:-mt-6" style={{ width: '100%', maxWidth: '1440px', minHeight: '908px', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ width: '100%', maxWidth: '1440px', minHeight: '908px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '40px 20px', backgroundColor: '#F0F8F4' }}>
           <div className="bg-white shadow-lg border border-gray-200 flex flex-col w-full max-w-[900px] min-h-[808px] rounded-xl p-5 lg:p-0" style={{ borderRadius: '12px' }}>
             {/* Editable Header with Icon */}
             <div className="flex items-center justify-center mb-12 lg:mb-16 mt-8 lg:mt-12">
@@ -172,19 +316,29 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
             </div>
             <div className="flex flex-col lg:flex-row flex-1 px-4 lg:px-10">
               {/* Left: Editable Input Fields */}
-              <div className="flex flex-col justify-start w-full lg:w-1/2 lg:pr-8 gap-3 lg:gap-4 overflow-y-auto" style={{ maxHeight: '600px', minHeight: '400px' }}>
+              <div className="flex flex-col justify-start w-full lg:w-1/2 lg:pr-8 gap-3 lg:gap-4 lg:overflow-y-auto" style={{ minHeight: '400px' }}>
+
+                
                 {/* Employees doing manual work */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Employees doing manual work <span className="text-red-500">*</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Enter how many team members handle repetitive, manual tasks weekly.
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Employees doing manual work <span className="text-red-500">*</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="employees" data-active={activeTooltip === 'employees'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('employees')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'employees')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('employees')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'employees' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          Enter how many team members handle repetitive, manual tasks weekly.
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="number"
@@ -206,15 +360,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 {/* Hours per employee/week */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Hours per employee/week <span className="text-red-500">*</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Average hours each employee spends on manual work in a typical week.
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Hours per employee/week <span className="text-red-500">*</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="hours" data-active={activeTooltip === 'hours'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('hours')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'hours')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('hours')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hours' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          Average hours each employee spends on manual work in a typical week.
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="number"
@@ -237,15 +399,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 {/* Hourly cost (with overhead) */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Hourly cost (with overhead) <span className="text-red-500">*</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Include base wage + overhead costs (e.g., tools, benefits, office space).
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Hourly cost (with overhead) <span className="text-red-500">*</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="hourly" data-active={activeTooltip === 'hourly'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('hourly')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'hourly')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('hourly')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hourly' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          Include base wage + overhead costs (e.g., tools, benefits, office space).
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="number"
@@ -267,15 +437,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 {/* Monthly error cost (optional) */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Monthly error cost <span className="text-gray-500">(optional)</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        How much do errors from manual work cost you monthly (in ₹/$)?
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Monthly error cost <span className="text-gray-500">(optional)</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="monthly-error" data-active={activeTooltip === 'monthly-error'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('monthly-error')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'monthly-error')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('monthly-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'monthly-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          How much do errors from manual work cost you monthly (in ₹/$)?
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="number"
@@ -302,15 +480,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 {/* Cost per error (optional) */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Cost per error <span className="text-gray-500">(optional)</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Estimated average cost every time a manual error occurs (e.g., ₹100).
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Cost per error <span className="text-gray-500">(optional)</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="cost-per-error" data-active={activeTooltip === 'cost-per-error'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('cost-per-error')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'cost-per-error')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('cost-per-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'cost-per-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          Estimated average cost every time a manual error occurs (e.g., ₹100).
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="number"
@@ -337,15 +523,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 {/* Email field */}
                 <div>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]">
-                      Your email <span className="text-red-500">*</span>
-                    </label>
-                    <span className="relative group">
-                      <Image src="/material-symbols_info-rounded.png" alt="Info icon" width={16} height={16} className="w-4 h-4 ml-2 cursor-pointer" />
-                      <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        We&rsquo;ll email your full savings report—no spam, promise.
+                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
+                      <span>Your email <span className="text-red-500">*</span></span>
+                      <span className="relative tooltip-container" data-tooltip-id="email" data-active={activeTooltip === 'email'}>
+                        <Image 
+                          src="/material-symbols_info-rounded.png" 
+                          alt="Info icon" 
+                          width={16} 
+                          height={16} 
+                          className="w-4 h-4 cursor-pointer" 
+                          onClick={() => handleTooltipToggle('email')}
+                          onTouchEnd={(e) => handleTooltipTouch(e, 'email')}
+                        />
+                        <span className={`absolute ${getTooltipClasses('email')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'email' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          We&rsquo;ll email your full savings report—no spam, promise.
+                        </span>
                       </span>
-                    </span>
+                    </label>
                   </div>
                   <input
                     type="email"
@@ -361,12 +555,12 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
               </div>
               {/* Right: Results/Outputs */}
               <div className="flex flex-col items-center justify-center w-full lg:w-1/2 gap-4 mt-6 lg:mt-0">
-                {/* Output Boxes - Mobile Optimized Spacing */}
-                <div className="flex flex-col gap-3 w-full items-center">
+                {/* Output Boxes - Well Aligned */}
+                <div className="flex flex-col gap-4 w-full max-w-[436px]">
                   {/* You're losing */}
-                  <div className="bg-[#FFECEC] rounded-lg flex flex-col items-start justify-center w-full max-w-[436px] min-h-[100px] lg:min-h-[108px]" style={{ border: '1px solid #FCA5A5', padding: '16px lg:px-20' }}>
+                  <div className="bg-[#FFECEC] rounded-lg flex flex-col items-start justify-center w-full min-h-[100px] lg:min-h-[108px]" style={{ border: '1px solid #FCA5A5', padding: '20px 24px' }}>
                     <div className="flex flex-col w-full">
-                      <div className="text-[#D23B3B] text-lg lg:text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>You&rsquo;re losing</div>
+                      <div className="text-[#D23B3B] text-lg lg:text-[24px] font-medium mb-2" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>You&rsquo;re losing</div>
                       <div className="flex flex-col lg:flex-row items-baseline w-full">
                         <span className="text-[#D73131] text-2xl lg:text-[36px] font-bold leading-tight lg:leading-[44px] break-words" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>${results.monthlyLoss.toLocaleString()}</span>
                         <span className="text-[#D73131] text-lg lg:text-[24px] font-medium lg:ml-2 mt-1 lg:mt-0" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>per month</span>
@@ -374,18 +568,19 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     </div>
                   </div>
                   {/* Break-even */}
-                  <div className="bg-[#FEF4CD] rounded-lg flex flex-col items-start justify-center w-full max-w-[436px] min-h-[100px] lg:min-h-[108px]" style={{ border: '1px solid #FDE68A', padding: '16px lg:px-20' }}>
+                  <div className="bg-[#FEF4CD] rounded-lg flex flex-col items-start justify-center w-full min-h-[100px] lg:min-h-[108px]" style={{ border: '1px solid #FDE68A', padding: '20px 24px' }}>
                     <div className="flex flex-col w-full">
-                      <div className="text-[#D97706] text-lg lg:text-[24px] font-medium mb-1" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Break-even in</div>
+                      <div className="text-[#D97706] text-lg lg:text-[24px] font-medium mb-2" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>Break-even in</div>
                       <div className="flex flex-col lg:flex-row items-baseline w-full">
                         <span className="text-[#D97706] text-2xl lg:text-[36px] font-bold leading-tight lg:leading-[44px] break-words" style={{fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>{results.breakEvenMonths}</span>
                         <span className="text-[#D97706] text-lg lg:text-[24px] font-medium lg:ml-2 mt-1 lg:mt-0" style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>months if automated</span>
                       </div>
                     </div>
                   </div>
-                  {/* Annual savings potential */}                  <div className={`rounded-lg flex flex-col items-start justify-center w-full max-w-[436px] min-h-[100px] lg:min-h-[108px] ${results.annualSavings >= 0 ? 'bg-[#E6F9ED] border-[#A7F3D0]' : 'bg-[#FEF2F2] border-[#FCA5A5]'}`} style={{ border: '1px solid', padding: '16px lg:px-20' }}>
+                  {/* Annual savings potential */}
+                  <div className={`rounded-lg flex flex-col items-start justify-center w-full min-h-[100px] lg:min-h-[108px] ${results.annualSavings >= 0 ? 'bg-[#E6F9ED] border-[#A7F3D0]' : 'bg-[#FEF2F2] border-[#FCA5A5]'}`} style={{ border: '1px solid', padding: '20px 24px' }}>
                     <div className="flex flex-col w-full">
-                      <div className={`text-lg lg:text-[24px] font-medium mb-1 ${results.annualSavings >= 0 ? 'text-[#04A15B]' : 'text-[#DC2626]'}`} style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>
+                      <div className={`text-lg lg:text-[24px] font-medium mb-2 ${results.annualSavings >= 0 ? 'text-[#04A15B]' : 'text-[#DC2626]'}`} style={{lineHeight:'32px', fontFamily:'Plus Jakarta Sans, sans-serif', letterSpacing:'-2%'}}>
                         {results.annualSavings >= 0 ? 'Annual savings potential:' : 'No profit with automation'}
                       </div>
                       <div className="flex flex-col lg:flex-row items-baseline w-full">
@@ -397,36 +592,39 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                       </div>
                     </div>
                   </div>
-                  {/* Re-Calculate Button - aligned under Annual Savings */}
-                  <div className="flex flex-row justify-start mt-3 mb-2 w-full max-w-[436px]">
-                    <button
-                      onClick={calculateROI}
-                      disabled={isLoading}
-                      className="flex items-center justify-center gap-2 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] disabled:opacity-50 whitespace-nowrap"
-                      style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '32px', minWidth: '142px', maxWidth: '142px' }}
-                    >
-                      <Image src="/recalculate.png" alt="Recalculate icon" width={32} height={32} className="mr-2 w-4 h-4 lg:w-5 lg:h-5" />
-                      Re-Calculate
-                    </button>
+                  {/* Buttons Section - Responsive Design */}
+                  <div className="flex flex-col gap-4 w-full">
+                    {/* Re-Calculate Button */}
+                    <div className="flex justify-start">
+                      <button
+                        onClick={calculateROI}
+                        disabled={isLoading}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] disabled:opacity-50 whitespace-nowrap"
+                        style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '40px', minWidth: '142px', maxWidth: '142px' }}
+                      >
+                        <Image src="/recalculate.png" alt="Recalculate icon" width={32} height={32} className="mr-2 w-4 h-4 lg:w-5 lg:h-5" />
+                        Re-Calculate
+                      </button>
+                    </div>
+                    {/* Email/Book Buttons - Responsive Layout */}
+                    <div className="flex flex-col sm:flex-row gap-3 w-full">
+                      <button
+                        onClick={sendEmailReport}
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] disabled:opacity-50 whitespace-nowrap"
+                        style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '40px' }}
+                      >
+                        Email me the full report
+                      </button>
+                      <button
+                        onClick={bookConsult}
+                        className="flex items-center justify-center gap-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] whitespace-nowrap"
+                        style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '40px', minWidth: 'fit-content' }}
+                      >
+                        Book a free 30–min consult →
+                      </button>
+                    </div>
                   </div>
-                </div>
-                {/* Email/Book Buttons - Single row below Re-Calculate */}
-                <div className="flex flex-col lg:flex-row gap-2 justify-center w-full max-w-[436px]">
-                  <button
-                    onClick={sendEmailReport}
-                    disabled={isLoading}
-                    className="flex-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] disabled:opacity-50"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '48px', minWidth: '202px', maxWidth: '202px' }}
-                  >
-                    Email me the full report
-                  </button>
-                  <button
-                    onClick={bookConsult}
-                    className="flex items-center justify-center gap-1 px-4 py-2 border border-[#04A15B] text-[#04A15B] rounded-[8px] bg-white hover:bg-[#04A15B] hover:text-white transition-colors text-xs lg:text-[14px] font-medium leading-[20px] break-words"
-                    style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', height: '48px', minWidth: '220px', maxWidth: '220px' }}
-                  >
-                    Book a free 30–min consult →
-                  </button>
                 </div>
               </div>
             </div>
@@ -450,11 +648,19 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 </span>
               </div>
             </div>
+            {/* Add spacing after note section */}
+            <div className="w-full mt-6 px-4 lg:px-10">
+              <div className="h-8 lg:h-12"></div>
+            </div>
+          </div>
+          {/* Add spacing below the card */}
+          <div className="w-full" style={{ padding: '2px 20px', backgroundColor: '#F0F8F4' }}>
+            <div className="h-1 lg:h-2"></div>
           </div>
         </div>
       ) : (
-        <div style={{ width: '100%', maxWidth: '1440px', minHeight: '980px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', margin: '0 auto', padding: '0 20px' }}>
-          <div className="bg-white shadow-lg border border-gray-200 w-full max-w-[900px] min-h-[808px] p-6 lg:p-10" style={{ borderRadius: '12px', marginTop: '86px' }}>
+        <div style={{ width: '100%', maxWidth: '1440px', minHeight: '980px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', margin: '0 auto', padding: '40px 20px', backgroundColor: '#F0F8F4' }}>
+          <div className="bg-white shadow-lg border border-gray-200 w-full max-w-[900px] min-h-[808px] p-6 lg:p-10" style={{ borderRadius: '12px' }}>
             {/* Header */}
             <div>
               <div className="flex items-center justify-center mb-0">
@@ -474,7 +680,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
             </div>
 
             {/* Core Workforce Metrics Section */}
-            <div className="mb-6 lg:mb-8" style={{ marginTop: '20px' }}>
+            <div className="mb-6 lg:mb-8" style={{ marginTop: '40px' }}>
               <div className="flex items-center mb-4 lg:mb-6">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center mr-3">
                   <Image 
@@ -495,24 +701,26 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
               </div>
               
               <div className="space-y-4 lg:space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  <div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6" style={{ overflow: 'visible' }}>
+                  <div style={{ overflow: 'visible', minWidth: '0' }}>
                     <div className="flex items-center mb-2">
-                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                        Employees doing manual work <span className="text-red-500">*</span>
-                      </label>
-                      <span className="relative group">
-                        <Image 
-                          src="/material-symbols_info-rounded.png" 
-                          alt="Info icon" 
-                          width={16} 
-                          height={16}
-                          className="w-4 h-4 ml-2 cursor-pointer"
-                        />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
-                        Enter how many team members handle repetitive, manual tasks weekly.
+                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        <span>Employees doing manual work <span className="text-red-500">*</span></span>
+                        <span className="relative tooltip-container" data-tooltip-id="employees-form" data-active={activeTooltip === 'employees-form'}>
+                          <Image 
+                            src="/material-symbols_info-rounded.png" 
+                            alt="Info icon" 
+                            width={16} 
+                            height={16}
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => handleTooltipToggle('employees-form')}
+                            onTouchEnd={(e) => handleTooltipTouch(e, 'employees-form')}
+                          />
+                          <span className={`absolute ${getTooltipClasses('employees-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'employees-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          Enter how many team members handle repetitive, manual tasks weekly.
+                          </span>
                         </span>
-                      </span>
+                      </label>
                     </div>
                     <input
                     type="number"
@@ -532,23 +740,25 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     />
                   </div>
 
-                  <div>
+                  <div style={{ overflow: 'visible', minWidth: '0' }}>
                     <div className="flex items-center mb-2">
-                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                        Hours per employee/week <span className="text-red-500">*</span>
-                      </label>
-                      <span className="relative group">
-                        <Image 
-                          src="/material-symbols_info-rounded.png" 
-                          alt="Info icon" 
-                          width={16} 
-                          height={16}
-                          className="w-4 h-4 ml-2 cursor-pointer"
-                        />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        <span>Hours per employee/week <span className="text-red-500">*</span></span>
+                        <span className="relative tooltip-container" data-tooltip-id="hours-form" data-active={activeTooltip === 'hours-form'}>
+                          <Image 
+                            src="/material-symbols_info-rounded.png" 
+                            alt="Info icon" 
+                            width={16} 
+                            height={16}
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => handleTooltipToggle('hours-form')}
+                            onTouchEnd={(e) => handleTooltipTouch(e, 'hours-form')}
+                          />
+                          <span className={`absolute ${getTooltipClasses('hours-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hours-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Average hours each employee spends on manual work in a typical week.
+                          </span>
                         </span>
-                      </span>
+                      </label>
                     </div>
                     <input
                     type="number"
@@ -570,24 +780,26 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                  <div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6" style={{ overflow: 'visible' }}>
+                  <div style={{ overflow: 'visible', minWidth: '0' }}>
                     <div className="flex items-center mb-2">
-                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                        Hourly cost (with overhead) <span className="text-red-500">*</span>
-                      </label>
-                      <span className="relative group">
-                        <Image 
-                          src="/material-symbols_info-rounded.png" 
-                          alt="Info icon" 
-                          width={16} 
-                          height={16}
-                          className="w-4 h-4 ml-2 cursor-pointer"
-                        />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        <span>Hourly cost (with overhead) <span className="text-red-500">*</span></span>
+                        <span className="relative tooltip-container" data-tooltip-id="hourly-form" data-active={activeTooltip === 'hourly-form'}>
+                          <Image 
+                            src="/material-symbols_info-rounded.png" 
+                            alt="Info icon" 
+                            width={16} 
+                            height={16}
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => handleTooltipToggle('hourly-form')}
+                            onTouchEnd={(e) => handleTooltipTouch(e, 'hourly-form')}
+                          />
+                          <span className={`absolute ${getTooltipClasses('hourly-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hourly-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Include base wage + overhead costs (e.g., tools, benefits, office space).
+                          </span>
                         </span>
-                      </span>
+                      </label>
                     </div>
                     <input
                     type="number"
@@ -628,24 +840,26 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 </h3>
               </div>
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                <div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6" style={{ overflow: 'visible' }}>
+                <div style={{ overflow: 'visible', minWidth: '0' }}>
                   <div className="flex items-center mb-2">
-                                          <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                        Monthly error cost <span className="text-gray-500">(optional)</span>
-                      </label>
-                      <span className="relative group">
-                        <Image 
-                          src="/material-symbols_info-rounded.png" 
-                          alt="Info icon" 
-                          width={16} 
-                          height={16}
-                          className="w-4 h-4 ml-2 cursor-pointer"
-                        />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        <span>Monthly error cost <span className="text-gray-500">(optional)</span></span>
+                        <span className="relative tooltip-container" data-tooltip-id="monthly-error-form" data-active={activeTooltip === 'monthly-error-form'}>
+                          <Image 
+                            src="/material-symbols_info-rounded.png" 
+                            alt="Info icon" 
+                            width={16} 
+                            height={16}
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => handleTooltipToggle('monthly-error-form')}
+                            onTouchEnd={(e) => handleTooltipTouch(e, 'monthly-error-form')}
+                          />
+                          <span className={`absolute ${getTooltipClasses('monthly-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'monthly-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           How much do errors from manual work cost you monthly (in ₹/$)?
+                          </span>
                         </span>
-                      </span>
+                      </label>
                   </div>
                   <input
                       type="number"
@@ -665,23 +879,25 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   />
                 </div>
 
-                <div>
+                <div style={{ overflow: 'visible', minWidth: '0' }}>
                   <div className="flex items-center mb-2">
-                    <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                      Cost per error <span className="text-gray-500">(optional)</span>
-                    </label>
-                      <span className="relative group">
-                        <Image 
-                          src="/material-symbols_info-rounded.png" 
-                          alt="Info icon" 
-                          width={16} 
-                          height={16}
-                          className="w-4 h-4 ml-2 cursor-pointer"
-                        />
-                        <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                        <span>Cost per error <span className="text-gray-500">(optional)</span></span>
+                        <span className="relative tooltip-container" data-tooltip-id="cost-per-error-form" data-active={activeTooltip === 'cost-per-error-form'}>
+                          <Image 
+                            src="/material-symbols_info-rounded.png" 
+                            alt="Info icon" 
+                            width={16} 
+                            height={16}
+                            className="w-4 h-4 cursor-pointer"
+                            onClick={() => handleTooltipToggle('cost-per-error-form')}
+                            onTouchEnd={(e) => handleTooltipTouch(e, 'cost-per-error-form')}
+                          />
+                          <span className={`absolute ${getTooltipClasses('cost-per-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'cost-per-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                           Estimated average cost every time a manual error occurs (e.g., ₹100).
+                          </span>
                         </span>
-                      </span>
+                      </label>
                   </div>
                   <input
                       type="number"
@@ -721,21 +937,23 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
               </div>
               <div>
                 <div className="mb-2 flex items-center">
-                  <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%]" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                    Your email <span className="text-red-500">*</span>
-                  </label>
-                  <span className="relative group ml-2">
-                    <Image 
-                      src="/material-symbols_info-rounded.png" 
-                      alt="Info icon" 
-                      width={16} 
-                      height={16}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                    <span className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs" style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                  <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                    <span>Your email <span className="text-red-500">*</span></span>
+                    <span className="relative tooltip-container" data-tooltip-id="email-form" data-active={activeTooltip === 'email-form'}>
+                      <Image 
+                        src="/material-symbols_info-rounded.png" 
+                        alt="Info icon" 
+                        width={16} 
+                        height={16}
+                        className="w-4 h-4 cursor-pointer"
+                        onClick={() => handleTooltipToggle('email-form')}
+                        onTouchEnd={(e) => handleTooltipTouch(e, 'email-form')}
+                      />
+                      <span className={`absolute ${getTooltipClasses('email-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'email-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
                       We&rsquo;ll email your full savings report—no spam, promise.
+                      </span>
                     </span>
-                  </span>
+                  </label>
                 </div>
                 <input
                   type="email"
@@ -762,6 +980,10 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
               </button>
             </div>
             <div className="mt-10" />
+          </div>
+          {/* Add spacing below the card */}
+          <div className="w-full" style={{ padding: '2px 20px', backgroundColor: '#F0F8F4' }}>
+            <div className="h-1 lg:h-2"></div>
           </div>
         </div>
       )}

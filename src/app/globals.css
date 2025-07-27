@@ -36,6 +36,216 @@ html {
   overflow-x: hidden;
 }
 
+/* Tooltip styles for mobile compatibility */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-container img {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Ensure tooltips are visible and never go off-screen */
+.tooltip-container span[class*="absolute"] {
+  position: absolute !important;
+  z-index: 9999 !important;
+  max-width: 280px !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  /* Prevent tooltip from going off-screen */
+  max-width: min(280px, calc(100vw - 40px)) !important;
+}
+
+/* Mobile tooltip styles (phones) */
+@media (max-width: 768px) {
+  .tooltip-container span[class*="absolute"] {
+    min-width: 200px;
+    max-width: calc(100vw - 40px) !important;
+    white-space: normal;
+    word-wrap: break-word;
+    z-index: 9999;
+    /* Force tooltip to stay within viewport */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  /* When positioned below, ensure it doesn't go off bottom */
+  .tooltip-container span[class*="top-full"] {
+    max-width: calc(100vw - 40px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  /* When positioned above, ensure it doesn't go off top */
+  .tooltip-container span[class*="bottom-full"] {
+    max-width: calc(100vw - 40px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* Tablet tooltip styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .tooltip-container span[class*="absolute"] {
+    min-width: 240px;
+    max-width: 320px !important;
+    white-space: normal;
+    word-wrap: break-word;
+    z-index: 9999;
+    /* Smart positioning for tablets */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    /* Ensure proper spacing */
+    margin: 8px 0 !important;
+  }
+  
+  /* When positioned below on tablets */
+  .tooltip-container span[class*="top-full"] {
+    max-width: 320px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin-top: 8px !important;
+  }
+  
+  /* When positioned above on tablets */
+  .tooltip-container span[class*="bottom-full"] {
+    max-width: 320px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* Enhanced touch targets for tablets */
+  .tooltip-container img {
+    min-width: 24px !important;
+    min-height: 24px !important;
+    padding: 4px !important;
+    border-radius: 50% !important;
+    transition: background-color 0.2s ease !important;
+  }
+  
+  /* Hover and touch feedback for tablets */
+  .tooltip-container img:hover,
+  .tooltip-container img:active {
+    background-color: rgba(16, 31, 47, 0.1) !important;
+  }
+  
+  /* Active tooltip indicator */
+  .tooltip-container[data-active="true"] img {
+    background-color: rgba(16, 31, 47, 0.15) !important;
+  }
+}
+
+/* Desktop tooltip positioning improvements */
+@media (min-width: 1025px) {
+  .tooltip-container span[class*="absolute"] {
+    max-width: 320px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+  
+  /* Ensure tooltips don't go off-screen on desktop */
+  .tooltip-container span[class*="left-0"] {
+    left: 0 !important;
+    transform: none !important;
+  }
+  
+  .tooltip-container span[class*="right-0"] {
+    right: 0 !important;
+    transform: none !important;
+  }
+  
+  /* Ensure centered tooltips stay within bounds */
+  .tooltip-container span[class*="left-1/2"] {
+    max-width: min(320px, calc(100vw - 40px)) !important;
+  }
+}
+
+/* Enhanced tooltip positioning for end-aligned icons */
+.tooltip-container[data-active="true"] span[class*="absolute"] {
+  /* Ensure tooltip is always visible when active */
+  z-index: 99999 !important;
+  max-width: min(320px, calc(100vw - 40px)) !important;
+}
+
+/* When tooltip is positioned above and icon is at the end */
+.tooltip-container span[class*="bottom-full"] {
+  /* Ensure tooltip doesn't go off the top of the screen */
+  max-width: min(320px, calc(100vw - 40px)) !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+/* When tooltip is positioned below and icon is at the end */
+.tooltip-container span[class*="top-full"] {
+  /* Ensure tooltip doesn't go off the bottom of the screen */
+  max-width: min(320px, calc(100vw - 40px)) !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+/* Ensure grid containers don't clip icons */
+.grid {
+  overflow: visible !important;
+}
+
+.grid > div {
+  overflow: visible !important;
+  min-width: 0; /* Allow flex shrinking */
+}
+
+/* Ensure form containers have enough space */
+.space-y-4 > div,
+.space-y-6 > div {
+  overflow: visible !important;
+}
+
+/* Ensure the results page container doesn't clip */
+div[style*="marginTop"] {
+  overflow: visible !important;
+}
+
+/* Ensure info icons are fully visible and not clipped */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto; /* Push icon to the end */
+  min-width: 20px; /* Ensure minimum space for icon */
+  min-height: 20px; /* Ensure minimum space for icon */
+  overflow: visible !important; /* Prevent clipping */
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.tooltip-container img {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  display: block; /* Ensure proper display */
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  overflow: visible !important;
+  flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+/* Ensure label containers don't clip icons */
+label[class*="flex items-center justify-between"] {
+  overflow: visible !important;
+  min-width: 0; /* Allow flex shrinking */
+  padding-right: 8px; /* Add padding to prevent edge clipping */
+}
+
+/* Ensure proper spacing for end-aligned icons */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  margin-left: auto; /* Push icon to the end */
+  padding-right: 4px; /* Add some padding to prevent edge clipping */
+}
+
 /* Responsive adjustments for 1366px and smaller screens */
 @media (max-width: 1440px) {
   .max-w-\[1440px\] {
@@ -69,4 +279,90 @@ html {
     margin-left: 20px !important;
     margin-right: 20px !important;
   }
+}
+
+/* Debug and ensure info icon visibility */
+.tooltip-container img[src*="material-symbols_info-rounded"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  object-fit: contain !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the icon container has proper dimensions */
+.tooltip-container[data-tooltip-id*="employees-form"] {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+/* Additional fixes for icon visibility */
+.tooltip-container {
+  position: relative !important;
+  display: inline-block !important;
+  margin-left: auto !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  z-index: 10 !important;
+}
+
+/* Ensure the icon itself is visible */
+.tooltip-container img {
+  position: relative !important;
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  z-index: 11 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure parent containers don't clip */
+.flex.items-center.mb-2 {
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+/* Ensure label containers provide enough space */
+label[class*="flex items-center justify-between"] {
+  overflow: visible !important;
+  min-width: 0 !important;
+  padding-right: 12px !important;
+  position: relative !important;
+}
+
+/* Force icon visibility */
+.tooltip-container[data-tooltip-id*="employees-form"] img {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
