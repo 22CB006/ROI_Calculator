@@ -70,7 +70,8 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
   // Close tooltip when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (activeTooltip && !(event.target as Element).closest('.tooltip-container')) {
+      // Only close tooltip on actual clicks, not on mouse movements
+      if (activeTooltip && event.type === 'mousedown' && !(event.target as Element).closest('.tooltip-container')) {
         setActiveTooltip(null);
       }
     };
@@ -82,7 +83,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
   const calculateTooltipPosition = (tooltipId: string, element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     const tooltipHeight = 80; // Approximate tooltip height
-    const tooltipWidth = 280; // Approximate tooltip width
+    const tooltipWidth = 300; // Updated tooltip width
     
     const spaceAbove = rect.top;
     const spaceBelow = window.innerHeight - rect.bottom;
@@ -136,56 +137,26 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
     handleTooltipToggle(tooltipId);
   };
 
+  const handleTooltipMouseEnter = (tooltipId: string) => {
+    // Show tooltip on hover for all screen sizes
+    setActiveTooltip(tooltipId);
+  };
+
+  const handleTooltipMouseLeave = () => {
+    // Hide tooltip on mouse leave for all screen sizes with a small delay
+    setTimeout(() => {
+      setActiveTooltip(null);
+    }, 100);
+  };
+
   const isTablet = () => {
     const viewportWidth = window.innerWidth;
     return viewportWidth > 768 && viewportWidth <= 1024;
   };
 
   const getTooltipClasses = (tooltipId: string) => {
-    // Only calculate positioning after component has mounted on client
-    if (!isMounted) {
-      return 'bottom-full mb-2 left-1/2 -translate-x-1/2';
-    }
-    
-    const position = tooltipPosition[tooltipId] || { top: false, left: null };
-    
-    let positioningClasses = '';
-    
-    // Always position above by default, but check if we need to position below
-    if (position.top) {
-      // Position below if not enough space above
-      positioningClasses = 'top-full mt-2';
-    } else {
-      // Position above (default)
-      positioningClasses = 'bottom-full mb-2';
-    }
-    
-    // Get current viewport width
-    const viewportWidth = window.innerWidth;
-    
-    // For mobile devices (phones), always center the tooltip
-    if (viewportWidth <= 768) {
-      positioningClasses += ' left-1/2 -translate-x-1/2';
-    }
-    // For tablet devices, always center the tooltip for better alignment
-    else if (viewportWidth > 768 && viewportWidth <= 1024) {
-      positioningClasses += ' left-1/2 -translate-x-1/2';
-    }
-    // On desktop, use the calculated position
-    else {
-      if (position.left === true) {
-        // Align to left if not enough space on left
-        positioningClasses += ' left-0';
-      } else if (position.left === false) {
-        // Align to right if not enough space on right
-        positioningClasses += ' right-0';
-      } else {
-        // Center (default)
-        positioningClasses += ' left-1/2 -translate-x-1/2';
-      }
-    }
-    
-    return positioningClasses;
+    // Always position above and center for consistency
+    return 'bottom-full mb-2 left-1/2 -translate-x-1/2';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,7 +295,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Employees doing manual work <span className="text-red-500">*</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="employees" data-active={activeTooltip === 'employees'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="employees" 
+                        data-active={activeTooltip === 'employees'}
+                        onMouseEnter={() => handleTooltipMouseEnter('employees')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -334,7 +311,12 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('employees')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'employees')}
                         />
-                        <span className={`absolute ${getTooltipClasses('employees')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'employees' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span 
+                          className={`absolute ${getTooltipClasses('employees')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'employees' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} 
+                          style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}
+                          data-tooltip-content="employees"
+                          id="tooltip-employees"
+                        >
                           Enter how many team members handle repetitive, manual tasks weekly.
                         </span>
                       </span>
@@ -362,7 +344,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Hours per employee/week <span className="text-red-500">*</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="hours" data-active={activeTooltip === 'hours'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="hours" 
+                        data-active={activeTooltip === 'hours'}
+                        onMouseEnter={() => handleTooltipMouseEnter('hours')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -372,7 +360,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('hours')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'hours')}
                         />
-                        <span className={`absolute ${getTooltipClasses('hours')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hours' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className={`absolute ${getTooltipClasses('hours')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'hours' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Average hours each employee spends on manual work in a typical week.
                         </span>
                       </span>
@@ -401,7 +389,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Hourly cost (with overhead) <span className="text-red-500">*</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="hourly" data-active={activeTooltip === 'hourly'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="hourly" 
+                        data-active={activeTooltip === 'hourly'}
+                        onMouseEnter={() => handleTooltipMouseEnter('hourly')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -411,7 +405,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('hourly')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'hourly')}
                         />
-                        <span className={`absolute ${getTooltipClasses('hourly')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hourly' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className={`absolute ${getTooltipClasses('hourly')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'hourly' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Include base wage + overhead costs (e.g., tools, benefits, office space).
                         </span>
                       </span>
@@ -439,7 +433,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Monthly error cost <span className="text-gray-500">(optional)</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="monthly-error" data-active={activeTooltip === 'monthly-error'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="monthly-error" 
+                        data-active={activeTooltip === 'monthly-error'}
+                        onMouseEnter={() => handleTooltipMouseEnter('monthly-error')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -449,7 +449,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('monthly-error')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'monthly-error')}
                         />
-                        <span className={`absolute ${getTooltipClasses('monthly-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'monthly-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className={`absolute ${getTooltipClasses('monthly-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'monthly-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           How much do errors from manual work cost you monthly (in ₹/$)?
                         </span>
                       </span>
@@ -482,7 +482,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Cost per error <span className="text-gray-500">(optional)</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="cost-per-error" data-active={activeTooltip === 'cost-per-error'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="cost-per-error" 
+                        data-active={activeTooltip === 'cost-per-error'}
+                        onMouseEnter={() => handleTooltipMouseEnter('cost-per-error')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -492,7 +498,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('cost-per-error')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'cost-per-error')}
                         />
-                        <span className={`absolute ${getTooltipClasses('cost-per-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'cost-per-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className={`absolute ${getTooltipClasses('cost-per-error')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'cost-per-error' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Estimated average cost every time a manual error occurs (e.g., ₹100).
                         </span>
                       </span>
@@ -525,7 +531,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                     <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full">
                       <span>Your email <span className="text-red-500">*</span></span>
-                      <span className="relative tooltip-container" data-tooltip-id="email" data-active={activeTooltip === 'email'}>
+                      <span 
+                        className="relative tooltip-container" 
+                        data-tooltip-id="email" 
+                        data-active={activeTooltip === 'email'}
+                        onMouseEnter={() => handleTooltipMouseEnter('email')}
+                        onMouseLeave={handleTooltipMouseLeave}
+                      >
                         <Image 
                           src="/material-symbols_info-rounded.png" 
                           alt="Info icon" 
@@ -535,7 +547,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                           onClick={() => handleTooltipToggle('email')}
                           onTouchEnd={(e) => handleTooltipTouch(e, 'email')}
                         />
-                        <span className={`absolute ${getTooltipClasses('email')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'email' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                        <span className={`absolute ${getTooltipClasses('email')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'email' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           We&rsquo;ll email your full savings report—no spam, promise.
                         </span>
                       </span>
@@ -706,7 +718,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     <div className="flex items-center mb-2">
                       <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <span>Employees doing manual work <span className="text-red-500">*</span></span>
-                        <span className="relative tooltip-container" data-tooltip-id="employees-form" data-active={activeTooltip === 'employees-form'}>
+                        <span 
+                          className="relative tooltip-container" 
+                          data-tooltip-id="employees-form" 
+                          data-active={activeTooltip === 'employees-form'}
+                          onMouseEnter={() => handleTooltipMouseEnter('employees-form')}
+                          onMouseLeave={handleTooltipMouseLeave}
+                        >
                           <Image 
                             src="/material-symbols_info-rounded.png" 
                             alt="Info icon" 
@@ -716,7 +734,12 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                             onClick={() => handleTooltipToggle('employees-form')}
                             onTouchEnd={(e) => handleTooltipTouch(e, 'employees-form')}
                           />
-                          <span className={`absolute ${getTooltipClasses('employees-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'employees-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          <span 
+                            className={`absolute ${getTooltipClasses('employees-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'employees-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} 
+                            style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}
+                            data-tooltip-content="employees-form"
+                            id="tooltip-employees-form"
+                          >
                           Enter how many team members handle repetitive, manual tasks weekly.
                           </span>
                         </span>
@@ -744,7 +767,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     <div className="flex items-center mb-2">
                       <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <span>Hours per employee/week <span className="text-red-500">*</span></span>
-                        <span className="relative tooltip-container" data-tooltip-id="hours-form" data-active={activeTooltip === 'hours-form'}>
+                        <span 
+                          className="relative tooltip-container" 
+                          data-tooltip-id="hours-form" 
+                          data-active={activeTooltip === 'hours-form'}
+                          onMouseEnter={() => handleTooltipMouseEnter('hours-form')}
+                          onMouseLeave={handleTooltipMouseLeave}
+                        >
                           <Image 
                             src="/material-symbols_info-rounded.png" 
                             alt="Info icon" 
@@ -754,7 +783,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                             onClick={() => handleTooltipToggle('hours-form')}
                             onTouchEnd={(e) => handleTooltipTouch(e, 'hours-form')}
                           />
-                          <span className={`absolute ${getTooltipClasses('hours-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hours-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          <span className={`absolute ${getTooltipClasses('hours-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'hours-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Average hours each employee spends on manual work in a typical week.
                           </span>
                         </span>
@@ -785,7 +814,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                     <div className="flex items-center mb-2">
                       <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <span>Hourly cost (with overhead) <span className="text-red-500">*</span></span>
-                        <span className="relative tooltip-container" data-tooltip-id="hourly-form" data-active={activeTooltip === 'hourly-form'}>
+                        <span 
+                          className="relative tooltip-container" 
+                          data-tooltip-id="hourly-form" 
+                          data-active={activeTooltip === 'hourly-form'}
+                          onMouseEnter={() => handleTooltipMouseEnter('hourly-form')}
+                          onMouseLeave={handleTooltipMouseLeave}
+                        >
                           <Image 
                             src="/material-symbols_info-rounded.png" 
                             alt="Info icon" 
@@ -795,7 +830,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                             onClick={() => handleTooltipToggle('hourly-form')}
                             onTouchEnd={(e) => handleTooltipTouch(e, 'hourly-form')}
                           />
-                          <span className={`absolute ${getTooltipClasses('hourly-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'hourly-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          <span className={`absolute ${getTooltipClasses('hourly-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'hourly-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Include base wage + overhead costs (e.g., tools, benefits, office space).
                           </span>
                         </span>
@@ -845,7 +880,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                       <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <span>Monthly error cost <span className="text-gray-500">(optional)</span></span>
-                        <span className="relative tooltip-container" data-tooltip-id="monthly-error-form" data-active={activeTooltip === 'monthly-error-form'}>
+                        <span 
+                          className="relative tooltip-container" 
+                          data-tooltip-id="monthly-error-form" 
+                          data-active={activeTooltip === 'monthly-error-form'}
+                          onMouseEnter={() => handleTooltipMouseEnter('monthly-error-form')}
+                          onMouseLeave={handleTooltipMouseLeave}
+                        >
                           <Image 
                             src="/material-symbols_info-rounded.png" 
                             alt="Info icon" 
@@ -855,7 +896,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                             onClick={() => handleTooltipToggle('monthly-error-form')}
                             onTouchEnd={(e) => handleTooltipTouch(e, 'monthly-error-form')}
                           />
-                          <span className={`absolute ${getTooltipClasses('monthly-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'monthly-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          <span className={`absolute ${getTooltipClasses('monthly-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'monthly-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           How much do errors from manual work cost you monthly (in ₹/$)?
                           </span>
                         </span>
@@ -883,7 +924,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                   <div className="flex items-center mb-2">
                       <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                         <span>Cost per error <span className="text-gray-500">(optional)</span></span>
-                        <span className="relative tooltip-container" data-tooltip-id="cost-per-error-form" data-active={activeTooltip === 'cost-per-error-form'}>
+                        <span 
+                          className="relative tooltip-container" 
+                          data-tooltip-id="cost-per-error-form" 
+                          data-active={activeTooltip === 'cost-per-error-form'}
+                          onMouseEnter={() => handleTooltipMouseEnter('cost-per-error-form')}
+                          onMouseLeave={handleTooltipMouseLeave}
+                        >
                           <Image 
                             src="/material-symbols_info-rounded.png" 
                             alt="Info icon" 
@@ -893,7 +940,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                             onClick={() => handleTooltipToggle('cost-per-error-form')}
                             onTouchEnd={(e) => handleTooltipTouch(e, 'cost-per-error-form')}
                           />
-                          <span className={`absolute ${getTooltipClasses('cost-per-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'cost-per-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                          <span className={`absolute ${getTooltipClasses('cost-per-error-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'cost-per-error-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                           Estimated average cost every time a manual error occurs (e.g., ₹100).
                           </span>
                         </span>
@@ -939,7 +986,13 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                 <div className="mb-2 flex items-center">
                   <label className="block text-sm lg:text-[18px] font-normal text-[#101F2F] leading-[150%] tracking-[0%] flex items-center justify-between w-full" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                     <span>Your email <span className="text-red-500">*</span></span>
-                    <span className="relative tooltip-container" data-tooltip-id="email-form" data-active={activeTooltip === 'email-form'}>
+                    <span 
+                      className="relative tooltip-container" 
+                      data-tooltip-id="email-form" 
+                      data-active={activeTooltip === 'email-form'}
+                      onMouseEnter={() => handleTooltipMouseEnter('email-form')}
+                      onMouseLeave={handleTooltipMouseLeave}
+                    >
                       <Image 
                         src="/material-symbols_info-rounded.png" 
                         alt="Info icon" 
@@ -949,7 +1002,7 @@ export default function ROICalculator({ onActiveChange }: ROICalculatorProps) {
                         onClick={() => handleTooltipToggle('email-form')}
                         onTouchEnd={(e) => handleTooltipTouch(e, 'email-form')}
                       />
-                      <span className={`absolute ${getTooltipClasses('email-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg max-w-xs transition-all duration-200 ${activeTooltip === 'email-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif'}}>
+                      <span className={`absolute ${getTooltipClasses('email-form')} z-[9999] bg-[#101F2F] text-white text-xs rounded px-3 py-2 shadow-lg max-w-[300px] transition-all duration-200 ${activeTooltip === 'email-form' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`} style={{fontFamily:'Plus Jakarta Sans, sans-serif', wordWrap: 'break-word', whiteSpace: 'normal'}}>
                       We&rsquo;ll email your full savings report—no spam, promise.
                       </span>
                     </span>
